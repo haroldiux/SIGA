@@ -2,7 +2,7 @@
   "name": "siga",
   "version": "0.0.1",
   "description": "Sistema Integral de Gestión de Activos",
-  "productName": "SIGAPP",
+  "productName": "SIGA - UNITEPC",
   "author": "Harold Rojas <haroldiux.17@gmail.com>",
   "type": "module",
   "private": true,

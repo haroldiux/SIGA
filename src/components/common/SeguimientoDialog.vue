@@ -13,14 +13,8 @@
         </div>
 
         <q-timeline color="primary">
-          <q-timeline-entry
-            v-for="(step, index) in steps"
-            :key="index"
-            :title="step.titulo"
-            :subtitle="step.fecha"
-            :color="step.color || 'primary'"
-            :icon="step.icon"
-          >
+          <q-timeline-entry v-for="(step, index) in steps" :key="index" :title="step.titulo" :subtitle="step.fecha"
+            :color="step.color || 'primary'" :icon="step.icon">
             <div>
               {{ step.descripcion }}
               <div v-if="step.usuario" class="text-caption text-grey-7 q-mt-xs">
@@ -38,7 +32,7 @@
 import { defineModel } from 'vue';
 
 const isOpen = defineModel('modelValue');
-const props = defineProps({
+defineProps({
   title: {
     type: String,
     default: 'Seguimiento'

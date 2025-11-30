@@ -1,28 +1,66 @@
-// import api from './api'; // Descomentar cuando se active el backend
+import api from './api';
 
 const reportesService = {
-  async generarReporte(_tipo, _params = {}) {
-    return Promise.resolve({ data: [] });
+  /**
+   * Reporte: Inventario Valorizado
+   */
+  async getInventarioValorizado(params = {}) {
+    const response = await api.get('/reportes/inventario-valorizado', { params });
+    return response.data;
   },
 
-  async exportarPDF(_reporteData) {
-    return Promise.resolve({ url: '' });
+  /**
+   * Reporte: Órdenes de Compra por Estado
+   */
+  async getOrdenesCompraPorEstado(params = {}) {
+    const response = await api.get('/reportes/ordenes-compra-estado', { params });
+    return response.data;
   },
 
-  async exportarExcel(_reporteData) {
-    return Promise.resolve({ url: '' });
+  /**
+   * Reporte: Consumo por Laboratorio
+   */
+  async getConsumoPorLaboratorio(params = {}) {
+    const response = await api.get('/reportes/consumo-laboratorio', { params });
+    return response.data;
   },
 
-  async programarReporte(programacionData) {
-    return Promise.resolve(programacionData);
+  /**
+   * Reporte: Estado de Préstamos
+   */
+  async getEstadoPrestamos(params = {}) {
+    const response = await api.get('/reportes/estado-prestamos', { params });
+    return response.data;
   },
 
-  async getReportesProgramados() {
-    return Promise.resolve({ data: [] });
+  /**
+   * Reporte: Inversión en Inventario
+   */
+  async getInversionInventario(params = {}) {
+    const response = await api.get('/reportes/inversion-inventario', { params });
+    return response.data;
   },
 
-  async deleteReporteProgramado(_id) {
-    return Promise.resolve({ success: true });
+  /**
+   * Exportar reporte a Excel
+   */
+  async exportarExcel(tipoReporte, params = {}) {
+    const response = await api.get(`/reportes/${tipoReporte}/excel`, {
+      params,
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  /**
+   * Exportar reporte a PDF
+   */
+  async exportarPDF(tipoReporte, params = {}) {
+    const response = await api.get(`/reportes/${tipoReporte}/pdf`, {
+      params,
+      responseType: 'blob'
+    });
+    return response.data;
   },
 };
 

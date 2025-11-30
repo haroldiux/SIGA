@@ -14,15 +14,8 @@
     </div>
 
     <q-card flat bordered>
-      <q-tabs
-        v-model="activeTab"
-        dense
-        class="bg-grey-2 text-grey-7 rounded-borders q-pa-xs q-mb-md"
-        active-class="bg-white text-dark shadow-1 rounded-borders"
-        indicator-color="transparent"
-        align="left"
-        no-caps
-      >
+      <q-tabs v-model="activeTab" dense class="bg-grey-2 text-grey-7 rounded-borders q-pa-xs q-mb-md"
+        active-class="bg-white text-dark shadow-1 rounded-borders" indicator-color="transparent" align="left" no-caps>
         <q-tab name="lista" label="Lista de Proveedores" class="q-px-lg" />
         <q-tab name="precios" label="Historial de Precios" class="q-px-lg" />
       </q-tabs>
@@ -38,13 +31,7 @@
               <div class="text-subtitle2 text-grey-7">Total: {{ proveedores.length }} proveedores activos</div>
             </div>
             <div class="col-auto">
-              <q-input
-                v-model="proveedoresFilter"
-                outlined
-                dense
-                placeholder="Buscar proveedor..."
-                class="q-mr-sm"
-              >
+              <q-input v-model="proveedoresFilter" outlined dense placeholder="Buscar proveedor..." class="q-mr-sm">
                 <template v-slot:append>
                   <q-icon name="search" />
                 </template>
@@ -52,12 +39,7 @@
             </div>
           </div>
 
-          <q-table
-            :rows="proveedores"
-            :columns="proveedoresColumns"
-            row-key="id"
-            :filter="proveedoresFilter"
-          >
+          <q-table :rows="proveedores" :columns="proveedoresColumns" row-key="id" :filter="proveedoresFilter">
             <template v-slot:body-cell-contacto="props">
               <q-td :props="props">
                 <div>
@@ -87,37 +69,25 @@
           <div class="row items-center q-mb-md">
             <div class="col">
               <div class="text-h6">Comparativa de Proveedores por Producto</div>
-              <div class="text-subtitle2 text-grey-7">Seleccione un producto para comparar precios entre proveedores</div>
+              <div class="text-subtitle2 text-grey-7">Seleccione un producto para comparar precios entre proveedores
+              </div>
             </div>
           </div>
 
           <!-- Selector de Producto -->
           <div class="row q-mb-lg q-col-gutter-md">
             <div class="col-12 col-md-8">
-              <q-select
-                v-model="productoSeleccionado"
-                :options="productosOptions"
-                label="Seleccione un producto para comparar"
-                outlined
-                emit-value
-                map-options
-                @update:model-value="actualizarComparativa"
-              >
+              <q-select v-model="productoSeleccionado" :options="productosOptions"
+                label="Seleccione un producto para comparar" outlined emit-value map-options
+                @update:model-value="actualizarComparativa">
                 <template v-slot:prepend>
                   <q-icon name="search" />
                 </template>
               </q-select>
             </div>
             <div class="col-12 col-md-4">
-              <q-btn
-                unelevated
-                color="dark"
-                label="Comparar Proveedores"
-                class="full-width"
-                style="height: 56px"
-                :disable="!productoSeleccionado"
-                @click="actualizarComparativa"
-              />
+              <q-btn unelevated color="dark" label="Comparar Proveedores" class="full-width" style="height: 56px"
+                :disable="!productoSeleccionado" @click="actualizarComparativa" />
             </div>
           </div>
 
@@ -135,7 +105,8 @@
                   </div>
                   <div class="col-auto text-right">
                     <div class="text-caption text-grey-8">Precio</div>
-                    <div class="text-h5 text-positive text-weight-bold">Bs. {{ mejorOpcion.precio.toFixed(2) }}</div>
+                    <div class="text-h5 text-positive text-weight-bold">Bs. {{ (mejorOpcion.precio || 0).toFixed(2) }}
+                    </div>
                   </div>
                   <div class="col-auto q-ml-lg text-right">
                     <div class="text-caption text-grey-8">Disponibilidad</div>
@@ -146,12 +117,7 @@
             </q-card>
 
             <!-- Tabla Comparativa -->
-            <q-table
-              :rows="datosComparativa"
-              :columns="comparativaColumns"
-              row-key="proveedor"
-              hide-bottom
-            >
+            <q-table :rows="datosComparativa" :columns="comparativaColumns" row-key="proveedor" hide-bottom>
               <template v-slot:body-cell-diferencia="props">
                 <q-td :props="props">
                   <q-badge v-if="props.row.esMejor" color="black" label="Mejor precio" />
@@ -177,7 +143,7 @@
                 <q-card flat bordered class="bg-grey-1">
                   <q-card-section>
                     <div class="text-caption text-grey-7">Precio Promedio</div>
-                    <div class="text-h6">Bs. {{ precioPromedio.toFixed(2) }}</div>
+                    <div class="text-h6">Bs. {{ (precioPromedio || 0).toFixed(2) }}</div>
                   </q-card-section>
                 </q-card>
               </div>
@@ -185,7 +151,7 @@
                 <q-card flat bordered class="bg-grey-1">
                   <q-card-section>
                     <div class="text-caption text-grey-7">Ahorro con Mejor Opción</div>
-                    <div class="text-h6 text-positive">Bs. {{ ahorroMaximo.toFixed(2) }}</div>
+                    <div class="text-h6 text-positive">Bs. {{ (ahorroMaximo || 0).toFixed(2) }}</div>
                   </q-card-section>
                 </q-card>
               </div>
@@ -209,13 +175,7 @@
               <div class="text-subtitle2 text-grey-7">Seguimiento de precios por ítem y proveedor</div>
             </div>
             <div class="col-auto">
-              <q-input
-                v-model="historialFilter"
-                outlined
-                dense
-                placeholder="Buscar ítem..."
-                class="q-mr-sm"
-              >
+              <q-input v-model="historialFilter" outlined dense placeholder="Buscar ítem..." class="q-mr-sm">
                 <template v-slot:append>
                   <q-icon name="search" />
                 </template>
@@ -223,15 +183,11 @@
             </div>
           </div>
 
-          <q-table
-            :rows="historialPrecios"
-            :columns="historialPreciosColumns"
-            row-key="id"
-            :filter="historialFilter"
-          >
+          <q-table :rows="historialPrecios" :columns="historialPreciosColumns" row-key="id" :filter="historialFilter">
             <template v-slot:body-cell-facturado="props">
               <q-td :props="props">
-                <q-badge :color="props.row.facturado ? 'positive' : 'grey'" :label="props.row.facturado ? 'Sí' : 'No'" />
+                <q-badge :color="props.row.facturado ? 'positive' : 'grey'"
+                  :label="props.row.facturado ? 'Sí' : 'No'" />
               </q-td>
             </template>
 
@@ -249,10 +205,7 @@
     </q-card>
 
     <!-- Diálogo de Nuevo Proveedor -->
-    <DialogNuevoProveedor
-      v-model="showNuevoProveedorDialog"
-      @provider-added="onProviderAdded"
-    />
+    <DialogNuevoProveedor v-model="showNuevoProveedorDialog" @provider-added="onProviderAdded" />
   </q-page>
 </template>
 
@@ -283,19 +236,58 @@ const productosOptions = [
   { label: 'BIO-045 - Guantes de Látex (100 unid)', value: 'guantes' }
 ];
 
-// Métodos
-const onProviderAdded = (provider) => {
-  // Agregar el proveedor a la lista (simulado)
-  proveedores.value.push({
-    id: Date.now(),
-    ...provider
-  });
+// Datos reactivos
+const proveedores = ref([]);
+const historialPrecios = ref([]);
+const loading = ref(false);
 
-  $q.notify({
-    color: 'positive',
-    message: `Proveedor ${provider.nombre} agregado correctamente`,
-    icon: 'check_circle'
-  });
+// Cargar datos iniciales
+const loadData = async () => {
+  loading.value = true;
+  try {
+    const [proveedoresData, historialData] = await Promise.all([
+      proveedoresService.getProveedores(),
+      proveedoresService.getHistorialPrecios()
+    ]);
+    proveedores.value = proveedoresData.data || proveedoresData;
+    historialPrecios.value = historialData.data || historialData;
+  } catch (error) {
+    console.error('Error cargando datos:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al cargar datos de proveedores'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Cargar al montar
+import { onMounted } from 'vue';
+import proveedoresService from 'src/services/proveedoresService';
+
+onMounted(() => {
+  loadData();
+});
+
+// Métodos
+const onProviderAdded = async (provider) => {
+  try {
+    await proveedoresService.createProveedor(provider);
+    await loadData(); // Recargar lista
+
+    $q.notify({
+      color: 'positive',
+      message: `Proveedor ${provider.nombre} agregado correctamente`,
+      icon: 'check_circle'
+    });
+  } catch (error) {
+    console.error('Error creando proveedor:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al crear proveedor'
+    });
+  }
 };
 
 const getTendenciaColor = (tendencia) => {
@@ -340,106 +332,6 @@ const ahorroMaximo = computed(() => {
   return maxPrecio - mejorOpcion.value.precio;
 });
 
-// Datos de ejemplo para las tablas
-const proveedores = ref([
-  {
-    id: 1,
-    nombre: 'Química del Sur SRL',
-    nit: '1234567890',
-    telefono: '+591 78945612',
-    email: 'contacto@quimicasur.com',
-    direccion: 'Av. América #123, La Paz',
-    itemsSuministrados: 45
-  },
-  {
-    id: 2,
-    nombre: 'LabEquip Bolivia',
-    nit: '0987654321',
-    telefono: '+591 76543210',
-    email: 'ventas@labequip.bo',
-    direccion: 'Calle Comercio #456, Cochabamba',
-    itemsSuministrados: 32
-  },
-  {
-    id: 3,
-    nombre: 'BioInsumos Científicos',
-    nit: 'Sin NIT',
-    telefono: '+591 71234567',
-    email: 'info@bioinsumos.com',
-    direccion: 'Zona Sur, Santa Cruz',
-    itemsSuministrados: 28
-  }
-]);
-
-// CRÍTICO: Datos para el historial de precios, ahora incluyendo las columnas adicionales
-const historialPrecios = ref([
-  {
-    id: 1,
-    fecha: '2025-11-01',
-    item: 'Ácido Sulfúrico H2SO4 1L',
-    proveedor: 'Química del Sur SRL',
-    precio: 85.00,
-    precioBruto: 71.43, // Precio sin IVA
-    iva: 13.57, // Monto del IVA
-    precioNeto: 85.00, // Precio con IVA
-    region: 'Región Principal',
-    facturado: true,
-    tendencia: '-3.4%'
-  },
-  {
-    id: 2,
-    fecha: '2025-10-28',
-    item: 'Ácido Sulfúrico H2SO4 1L',
-    proveedor: 'Química del Sur SRL',
-    precio: 88.00,
-    precioBruto: 73.95,
-    iva: 14.05,
-    precioNeto: 88.00,
-    region: 'Región Principal',
-    facturado: true,
-    tendencia: null
-  },
-  {
-    id: 3,
-    fecha: '2025-10-15',
-    item: 'Guantes de Látex (100 unid)',
-    proveedor: 'BioInsumos Científicos',
-    precio: 120.00,
-    precioBruto: 120.00, // Sin IVA porque es región Cojiba
-    iva: 0,
-    precioNeto: 120.00,
-    region: 'Cojiba',
-    facturado: true,
-    tendencia: null
-  },
-  {
-    id: 4,
-    fecha: '2025-10-10',
-    item: 'Pipetas 10ml',
-    proveedor: 'LabEquip Bolivia',
-    precio: 15.00,
-    precioBruto: 12.61,
-    iva: 2.39,
-    precioNeto: 15.00,
-    region: 'Región Principal',
-    facturado: true,
-    tendencia: null
-  },
-  {
-    id: 5,
-    fecha: '2025-10-28',
-    item: 'Microscopio Binocular',
-    proveedor: 'LabEquip Bolivia',
-    precio: 2800.00,
-    precioBruto: 2800.00, // Sin IVA porque es Zona Franca
-    iva: 0,
-    precioNeto: 2800.00,
-    region: 'Zona Franca',
-    facturado: true,
-    tendencia: '-9.7%'
-  }
-]);
-
 // Columnas para las tablas
 const proveedoresColumns = [
   { name: 'nombre', align: 'left', label: 'Proveedor', field: 'nombre', sortable: true },
@@ -451,20 +343,17 @@ const proveedoresColumns = [
 
 // CRÍTICO: Columnas para el historial de precios, incluyendo las nuevas columnas
 const historialPreciosColumns = [
-  { name: 'fecha', align: 'left', label: 'Fecha', field: 'fecha', sortable: true },
-  { name: 'item', align: 'left', label: 'Ítem', field: 'item' },
-  { name: 'proveedor', align: 'left', label: 'Proveedor', field: 'proveedor' },
-  { name: 'precioBruto', align: 'right', label: 'Precio Bruto (Bs.)', field: 'precioBruto' },
-  { name: 'iva', align: 'right', label: 'IVA (Bs.)', field: 'iva' },
-  { name: 'precioNeto', align: 'right', label: 'Precio Neto (Bs.)', field: 'precio' },
-  { name: 'region', align: 'center', label: 'Región', field: 'region' },
-  { name: 'facturado', align: 'center', label: 'Facturado', field: 'facturado' },
-  { name: 'tendencia', align: 'center', label: 'Tendencia', field: 'tendencia' }
+  { name: 'fecha', align: 'left', label: 'Fecha', field: 'fecha_vigencia', sortable: true, format: val => new Date(val).toLocaleDateString() },
+  { name: 'item', align: 'left', label: 'Ítem', field: row => row.item?.nombre || 'N/A' },
+  { name: 'proveedor', align: 'left', label: 'Proveedor', field: row => row.proveedor?.nombre || 'N/A' },
+  { name: 'precioBruto', align: 'right', label: 'Precio (Bs.)', field: 'precio', format: val => `Bs. ${Number(val).toFixed(2)}` },
+  { name: 'moneda', align: 'center', label: 'Moneda', field: 'moneda' },
+  { name: 'observaciones', align: 'left', label: 'Observaciones', field: 'observaciones' }
 ];
 
 const comparativaColumns = [
   { name: 'proveedor', align: 'left', label: 'Proveedor', field: 'proveedor' },
-  { name: 'precio', align: 'right', label: 'Precio Actual', field: 'precio', format: val => `Bs. ${val.toFixed(2)}` },
+  { name: 'precio', align: 'right', label: 'Precio Actual', field: 'precio', format: val => `Bs. ${Number(val || 0).toFixed(2)}` },
   { name: 'diferencia', align: 'center', label: 'Diferencia vs Mejor', field: 'diferencia' },
   { name: 'ultimaCompra', align: 'center', label: 'Última Compra', field: 'ultimaCompra' },
   { name: 'stock', align: 'center', label: 'Stock', field: 'stock' }

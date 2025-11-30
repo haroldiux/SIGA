@@ -4,20 +4,12 @@
     <!-- Header -->
     <q-header elevated class="header-gradient">
       <q-toolbar class="q-py-sm">
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-          class="text-white"
-        />
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" class="text-white" />
 
         <q-toolbar-title class="flex items-center">
           <div class="flex items-center">
-            <q-avatar size="45px" class="q-mr-md">
-              <img src="~assets/unitepc-logo.png" alt="UNITEPC Logo" />
+            <q-avatar size="45px" class="q-mr-md bg-white">
+              <img src="/logos/unitepc-circular.png" alt="UNITEPC Logo" />
             </q-avatar>
             <div class="column">
               <div class="text-bold text-white text-h6">UNITEPC</div>
@@ -66,13 +58,7 @@
     </q-header>
 
     <!-- Drawer (Sidebar) -->
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      :width="280"
-      :breakpoint="400"
-      class="sidebar-drawer"
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above :width="280" :breakpoint="400" class="sidebar-drawer">
       <q-scroll-area class="fit sidebar-scroll">
         <q-list padding class="menu-list">
           <q-item-label header class="text-grey-8 q-py-md q-px-md text-weight-bold">
@@ -81,16 +67,8 @@
           </q-item-label>
 
           <!-- Menú de navegación -->
-          <q-item
-            v-for="(item, index) in menuItems"
-            :key="index"
-            :to="item.route"
-            clickable
-            v-ripple
-            :active="$route.path === item.route"
-            active-class="menu-item-active"
-            class="menu-item q-my-xs"
-          >
+          <q-item v-for="(item, index) in menuItems" :key="index" :to="item.route" clickable v-ripple
+            :active="$route.path === item.route" active-class="menu-item-active" class="menu-item q-my-xs">
             <q-item-section avatar>
               <q-icon :name="item.icon" size="22px" />
             </q-item-section>
@@ -106,14 +84,8 @@
                 <q-icon name="swap_horiz" size="xs" class="q-mr-xs" />
                 CAMBIAR VISTA COMO:
               </div>
-              <q-select
-                v-model="selectedRole"
-                :options="roleOptions"
-                dense
-                outlined
-                class="role-select"
-                @update:model-value="changeUserRole"
-              >
+              <q-select v-model="selectedRole" :options="roleOptions" dense outlined class="role-select"
+                @update:model-value="changeUserRole">
                 <template v-slot:prepend>
                   <q-icon name="person" />
                 </template>
@@ -194,7 +166,7 @@ onMounted(async () => {
   selectedRole.value = store.userRole;
   // Cargar notificaciones iniciales
   notificationsStore.loadInitialNotifications();
-  
+
   // Cargar configuración global (simulado por ahora)
   try {
     await adminService.getConfig();
@@ -231,7 +203,7 @@ onMounted(async () => {
   border-radius: 8px;
   margin: 2px 8px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(25, 118, 210, 0.08);
     transform: translateX(4px);
@@ -243,7 +215,7 @@ onMounted(async () => {
   border-left: 3px solid #1976d2;
   font-weight: 600;
   color: #1976d2;
-  
+
   :deep(.q-icon) {
     color: #1976d2;
   }
@@ -270,6 +242,7 @@ onMounted(async () => {
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);

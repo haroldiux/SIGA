@@ -1,8 +1,26 @@
 // src/router/routes.js
 const routes = [
+  // Ruta de Login (pública)
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('pages/LoginPage.vue'),
+    meta: { requiresAuth: false }
+  },
+
+  // Ruta de Cambio de Contraseña (requiere autenticación)
+  {
+    path: '/cambiar-password',
+    name: 'cambiar-password',
+    component: () => import('pages/ChangePasswordPage.vue'),
+    meta: { requiresAuth: true, requiresPasswordChange: false }
+  },
+
+  // Rutas principales (requieren autenticación)
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',

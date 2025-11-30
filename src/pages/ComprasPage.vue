@@ -65,27 +65,11 @@
       </div>
       <div class="col-auto row q-col-gutter-md">
         <div>
-          <q-select
-            v-model="estadoFilter"
-            :options="estadoOptions"
-            label="Estado"
-            outlined
-            dense
-            options-dense
-            emit-value
-            map-options
-            class="q-mr-sm"
-            style="width: 200px"
-          />
+          <q-select v-model="estadoFilter" :options="estadoOptions" label="Estado" outlined dense options-dense
+            emit-value map-options class="q-mr-sm" style="width: 200px" />
         </div>
         <div>
-          <q-input
-            v-model="fechaDesdeFilter"
-            label="Desde"
-            outlined
-            dense
-            readonly
-          >
+          <q-input v-model="fechaDesdeFilter" label="Desde" outlined dense readonly>
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -100,13 +84,7 @@
           </q-input>
         </div>
         <div>
-          <q-input
-            v-model="fechaHastaFilter"
-            label="Hasta"
-            outlined
-            dense
-            readonly
-          >
+          <q-input v-model="fechaHastaFilter" label="Hasta" outlined dense readonly>
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -121,12 +99,7 @@
           </q-input>
         </div>
         <div>
-          <q-input
-            v-model="search"
-            outlined
-            dense
-            placeholder="Buscar orden..."
-          >
+          <q-input v-model="search" outlined dense placeholder="Buscar orden...">
             <template v-slot:append>
               <q-icon name="search" />
             </template>
@@ -135,31 +108,45 @@
       </div>
     </div>
 
-    <q-table
-      :rows="filteredOrdenes"
-      :columns="ordenesColumns"
-      row-key="id"
-      :filter="search"
-    >
+    <q-table :rows="filteredOrdenes" :columns="ordenesColumns" row-key="id" :filter="search"
+      :pagination="{ rowsPerPage: 10 }">
+
+      <!-- Template para Código -->
+      <template v-slot:body-cell-codigo="props">
+        <q-td :props="props">
+          <span class="text-weight-medium">{{ props.row.codigo || props.row.id || 'N/A' }}</span>
+        </q-td>
+      </template>
+
+      <!-- Template para Fecha -->
+      <template v-slot:body-cell-fecha="props">
+        <q-td :props="props">
+          {{ formatDate(props.row.fecha || props.row.created_at) }}
+        </q-td>
+      </template>
+
+      <!-- Template para Estado -->
       <template v-slot:body-cell-estado="props">
         <q-td :props="props">
-          <q-badge :color="getEstadoColor(props.value)" :label="props.value" />
+          <q-badge :color="getEstadoColor(props.value)" :label="props.value || 'Pendiente'" class="q-px-sm q-py-xs" />
         </q-td>
       </template>
 
+      <!-- Template para Total -->
       <template v-slot:body-cell-total="props">
         <q-td :props="props" class="text-right">
-          Bs. {{ props.value.toFixed(2) }}
+          <span class="text-weight-medium">Bs. {{ Number(props.value || 0).toFixed(2) }}</span>
         </q-td>
       </template>
 
+      <!-- Template para Acciones -->
       <template v-slot:body-cell-actions="props">
         <q-td :props="props">
           <!-- Ver siempre disponible -->
           <q-btn size="sm" flat round dense icon="visibility" color="primary" @click="viewOrden(props.row)">
             <q-tooltip>Ver Detalles</q-tooltip>
           </q-btn>
-          
+
           <!-- PENDIENTE: Aprobar/Rechazar -->
           <template v-if="props.row.estado === 'Pendiente'">
             <q-btn size="sm" flat round dense icon="check" color="positive" @click="aprobarOrden(props.row)">
@@ -169,21 +156,21 @@
               <q-tooltip>Rechazar Orden</q-tooltip>
             </q-btn>
           </template>
-          
+
           <!-- APROBADA: Marcar En Proceso -->
           <template v-if="props.row.estado === 'Aprobada'">
             <q-btn size="sm" flat round dense icon="local_shipping" color="blue" @click="marcarEnProceso(props.row)">
               <q-tooltip>Marcar En Proceso</q-tooltip>
             </q-btn>
           </template>
-          
+
           <!-- EN PROCESO: Registrar Recepción -->
           <template v-if="props.row.estado === 'En Proceso'">
             <q-btn size="sm" flat round dense icon="inventory" color="teal" @click="abrirDialogRecepcion(props.row)">
               <q-tooltip>Registrar Recepción</q-tooltip>
             </q-btn>
           </template>
-          
+
           <!-- RECIBIDA: Ingresar a Inventario -->
           <template v-if="props.row.estado === 'Recibida'">
             <q-btn size="sm" flat round dense icon="add_box" color="positive" @click="ingresarAInventario(props.row)">
@@ -195,26 +182,21 @@
     </q-table>
 
     <!-- Diálogo de Nueva Orden (CRÍTICO: Lógica de precios e impuestos) -->
-    <DialogNuevaOrden
-      v-model="showNuevaOrdenDialog"
-      @order-added="onOrderAdded"
-    />
+    <DialogNuevaOrden v-model="showNuevaOrdenDialog" @order-added="onOrderAdded" />
 
     <!-- Diálogo de Recepción de Mercancía -->
-    <DialogRecepcionOrden
-      v-model="showRecepcionDialog"
-      :orden="ordenSeleccionada"
-      @recepcion-confirmada="onRecepcionConfirmada"
-    />
+    <DialogRecepcionOrden v-model="showRecepcionDialog" :orden="ordenSeleccionada"
+      @recepcion-confirmada="onRecepcionConfirmada" />
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, shallowRef } from 'vue';
 import { useQuasar } from 'quasar';
 import { useInventarioStore } from 'src/stores/store-inventario';
 import DialogNuevaOrden from 'src/components/compras/DialogNuevaOrden.vue';
 import DialogRecepcionOrden from 'src/components/compras/DialogRecepcionOrden.vue';
+import comprasService from 'src/services/comprasService';
 
 const $q = useQuasar();
 const inventarioStore = useInventarioStore();
@@ -227,6 +209,7 @@ const search = ref('');
 const estadoFilter = ref(null);
 const fechaDesdeFilter = ref('');
 const fechaHastaFilter = ref('');
+const loading = ref(false);
 
 // Opciones para filtros
 const estadoOptions = [
@@ -238,166 +221,155 @@ const estadoOptions = [
   { label: 'Cancelada', value: 'Cancelada' }
 ];
 
-// Datos de órdenes
-const ordenes = ref([
-  {
-    id: 1,
-    codigo: 'OC-2025-001',
-    fecha: '2025-11-05',
-    proveedor: 'Química del Sur SRL',
-    items: [
-      {
-        itemId: 'QUI-001',
-        nombre: 'Ácido Sulfúrico H2SO4',
-        cantidad: 10,
-        unidadMedida: 'Litros',
-        precioBruto: 85.00,
-        precioNeto: 101.15,
-        montoIVA: 16.15
-      }
-    ],
-    subtotal: 850.00,
-    iva: 161.50,
-    total: 1011.50,
-    estado: 'Pendiente'
-  },
-  {
-    id: 2,
-    codigo: 'OC-2025-002',
-    fecha: '2025-11-02',
-    proveedor: 'LabEquip Bolivia',
-    items: 3,
-    subtotal: 2800.00,
-    iva: 0, // Sin IVA porque es región exenta
-    total: 2800.00,
-    estado: 'Aprobada'
-  },
-  {
-    id: 3,
-    codigo: 'OC-2025-003',
-    fecha: '2025-10-29',
-    proveedor: 'BioInsumos Científicos',
-    items: 8,
-    subtotal: 1200.00,
-    iva: 228.00,
-    total: 1428.00,
-    estado: 'En Proceso'
-  },
-  {
-    id: 4,
-    codigo: 'OC-2025-004',
-    fecha: '2025-10-25',
-    proveedor: 'LabEquip Bolivia',
-    items: 2,
-    subtotal: 320.00,
-    iva: 60.80,
-    total: 380.80,
-    estado: 'Completada'
-  },
-  {
-    id: 5,
-    codigo: 'OC-2025-005',
-    fecha: '2025-10-20',
-    proveedor: 'Química del Sur SRL',
-    items: 1,
-    subtotal: 150.00,
-    iva: 28.50,
-    total: 178.50,
-    estado: 'Cancelada'
-  }
-]);
+// Usar shallowRef para evitar reactividad profunda que causa loops
+const ordenes = shallowRef([]);
 
-// Computed properties
+// Cargar datos
+const loadData = async () => {
+  if (loading.value) return; // Prevenir llamadas múltiples
+
+  loading.value = true;
+  try {
+    const response = await comprasService.getOrdenes();
+    // Extraer datos de forma segura
+    let data = response;
+    if (response && response.data) {
+      data = response.data;
+    }
+
+    // Asegurarse de que sea un array
+    if (Array.isArray(data)) {
+      ordenes.value = data;
+    } else if (data && Array.isArray(data.data)) {
+      ordenes.value = data.data;
+    } else {
+      ordenes.value = [];
+    }
+  } catch (error) {
+    console.error('Error cargando órdenes:', error);
+    ordenes.value = [];
+    $q.notify({
+      type: 'negative',
+      message: 'Error al cargar órdenes de compra'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Computed properties - usando funciones simples para evitar loops
 const filteredOrdenes = computed(() => {
+  if (!Array.isArray(ordenes.value)) return [];
+
   return ordenes.value.filter(orden => {
+    if (!orden) return false;
+
     // Filtrar por estado
     if (estadoFilter.value && orden.estado !== estadoFilter.value) return false;
 
     // Filtrar por fecha desde
-    if (fechaDesdeFilter.value && new Date(orden.fecha) < new Date(fechaDesdeFilter.value)) return false;
+    if (fechaDesdeFilter.value && orden.fecha) {
+      if (new Date(orden.fecha) < new Date(fechaDesdeFilter.value)) return false;
+    }
 
     // Filtrar por fecha hasta
-    if (fechaHastaFilter.value && new Date(orden.fecha) > new Date(fechaHastaFilter.value)) return false;
+    if (fechaHastaFilter.value && orden.fecha) {
+      if (new Date(orden.fecha) > new Date(fechaHastaFilter.value)) return false;
+    }
 
     return true;
   });
 });
 
-const ordenesActivas = computed(() => ordenes.value.filter(orden => orden.estado !== 'Cancelada').length);
+const ordenesActivas = computed(() => {
+  if (!Array.isArray(ordenes.value)) return 0;
+  return ordenes.value.filter(orden => orden && orden.estado !== 'Cancelada').length;
+});
 
-const ordenesPendientes = computed(() => ordenes.value.filter(orden => orden.estado === 'Pendiente'));
+const ordenesPendientes = computed(() => {
+  if (!Array.isArray(ordenes.value)) return [];
+  return ordenes.value.filter(orden => orden && orden.estado === 'Pendiente');
+});
 
-const ordenesEnProceso = computed(() => ordenes.value.filter(orden => orden.estado === 'En Proceso' || orden.estado === 'Aprobada'));
+const ordenesEnProceso = computed(() => {
+  if (!Array.isArray(ordenes.value)) return [];
+  return ordenes.value.filter(orden => orden && (orden.estado === 'En Proceso' || orden.estado === 'Aprobada'));
+});
 
-const ordenesCompletadas = computed(() => ordenes.value.filter(orden => orden.estado === 'Completada'));
+const ordenesCompletadas = computed(() => {
+  if (!Array.isArray(ordenes.value)) return [];
+  return ordenes.value.filter(orden => orden && orden.estado === 'Completada');
+});
 
 // Métodos
-const onOrderAdded = (orden) => {
-  // Asignar ID único
-  const newOrden = {
-    id: Date.now(),
-    ...orden,
-    estado: 'Pendiente',
-    items: orden.items.length,
-    subtotal: orden.items.reduce((sum, item) => sum + (item.precioBruto * item.cantidad), 0),
-    iva: orden.items.reduce((sum, item) => sum + (item.montoIVA * item.cantidad), 0),
-    total: orden.items.reduce((sum, item) => sum + (item.precioNeto * item.cantidad), 0)
-  };
+const onOrderAdded = async (orden) => {
+  try {
+    await comprasService.createOrden(orden);
+    showNuevaOrdenDialog.value = false;
+    await loadData();
 
-  // Agregar a la lista
-  ordenes.value.push(newOrden);
-
-  $q.notify({
-    color: 'positive',
-    message: `Orden ${orden.codigo} agregada correctamente`,
-    icon: 'check_circle'
-  });
+    $q.notify({
+      color: 'positive',
+      message: `Orden ${orden.codigo || ''} agregada correctamente`,
+      icon: 'check_circle'
+    });
+  } catch (error) {
+    console.error('Error creando orden:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al crear la orden de compra'
+    });
+  }
 };
 
 const viewOrden = (orden) => {
   $q.notify({
-    message: `Ver detalles de la orden ${orden.codigo}`,
+    message: `Ver detalles de la orden ${orden.codigo || ''}`,
     color: 'info'
   });
 };
 
 const getEstadoColor = (estado) => {
-  switch(estado) {
-    case 'Pendiente': return 'orange';
-    case 'Aprobada': return 'blue';
-    case 'En Proceso': return 'teal';
-    case 'Recibida': return 'purple';
-    case 'Completada': return 'positive';
-    case 'Cancelada': return 'negative';
-    default: return 'grey';
-  }
+  const colores = {
+    'Pendiente': 'orange',
+    'Aprobada': 'blue',
+    'En Proceso': 'teal',
+    'Recibida': 'purple',
+    'Completada': 'positive',
+    'Cancelada': 'negative'
+  };
+  return colores[estado] || 'grey';
 };
-
-// ===== NUEVAS FUNCIONES DEL FLUJO =====
 
 const aprobarOrden = (orden) => {
   $q.dialog({
     title: 'Aprobar Orden de Compra',
-    message: `¿Confirma la aprobación de la orden ${orden.codigo}?`,
+    message: `¿Confirma la aprobación de la orden ${orden.codigo || ''}?`,
     cancel: true,
     persistent: true
-  }).onOk(() => {
-    orden.estado = 'Aprobada';
-    orden.fechaAprobacion = new Date().toISOString();
-    orden.aprobadoPor = 'Superadmin'; // En producción, obtener del usuario actual
-
-    $q.notify({
-      color: 'positive',
-      message: `Orden ${orden.codigo} aprobada correctamente`,
-      icon: 'check_circle'
-    });
+  }).onOk(async () => {
+    try {
+      await comprasService.aprobarOrden(orden.id);
+      await loadData();
+      $q.notify({
+        color: 'positive',
+        message: `Orden ${orden.codigo || ''} aprobada correctamente`,
+        icon: 'check_circle'
+      });
+    } catch (error) {
+      console.error('Error aprobando orden:', error);
+      $q.notify({
+        type: 'negative',
+        message: 'Error al aprobar la orden'
+      });
+    }
   });
 };
 
 const rechazarOrden = (orden) => {
   $q.dialog({
     title: 'Rechazar Orden de Compra',
-    message: `¿Está seguro que desea rechazar la orden ${orden.codigo}?`,
+    message: `¿Está seguro que desea rechazar la orden ${orden.codigo || ''}?`,
     prompt: {
       model: '',
       type: 'text',
@@ -406,34 +378,49 @@ const rechazarOrden = (orden) => {
     },
     cancel: true,
     persistent: true
-  }).onOk((motivo) => {
-    orden.estado = 'Cancelada';
-    orden.motivoRechazo = motivo;
-    orden.fechaRechazo = new Date().toISOString();
+  }).onOk(async (motivo) => {
+    try {
+      // Simulación local por ahora si no existe endpoint
+      const index = ordenes.value.findIndex(o => o.id === orden.id);
+      if (index !== -1) {
+        ordenes.value[index].estado = 'Cancelada';
+        ordenes.value[index].motivoRechazo = motivo;
+        ordenes.value = [...ordenes.value]; // Trigger reactivity
+      }
 
-    $q.notify({
-      color: 'warning',
-      message: `Orden ${orden.codigo} rechazada`,
-      icon: 'cancel'
-    });
+      $q.notify({
+        color: 'warning',
+        message: `Orden ${orden.codigo || ''} rechazada`,
+        icon: 'cancel'
+      });
+    } catch (error) {
+      console.error('Error rechazando orden:', error);
+    }
   });
 };
 
 const marcarEnProceso = (orden) => {
   $q.dialog({
     title: 'Marcar como En Proceso',
-    message: `¿La compra de la orden ${orden.codigo} ha sido realizada?`,
+    message: `¿La compra de la orden ${orden.codigo || ''} ha sido realizada?`,
     cancel: true,
     persistent: true
-  }).onOk(() => {
-    orden.estado = 'En Proceso';
-    orden.fechaEnProceso = new Date().toISOString();
-
-    $q.notify({
-      color: 'info',
-      message: `Orden ${orden.codigo} marcada como En Proceso`,
-      icon: 'local_shipping'
-    });
+  }).onOk(async () => {
+    try {
+      await comprasService.updateOrden(orden.id, { estado: 'En Proceso' });
+      await loadData();
+      $q.notify({
+        color: 'info',
+        message: `Orden ${orden.codigo || ''} marcada como En Proceso`,
+        icon: 'local_shipping'
+      });
+    } catch (error) {
+      console.error('Error actualizando orden:', error);
+      $q.notify({
+        type: 'negative',
+        message: 'Error al actualizar la orden'
+      });
+    }
   });
 };
 
@@ -442,63 +429,56 @@ const abrirDialogRecepcion = (orden) => {
   showRecepcionDialog.value = true;
 };
 
-const onRecepcionConfirmada = (datosRecepcion) => {
-  const orden = ordenes.value.find(o => o.id === datosRecepcion.ordenId);
-  
-  if (!orden) return;
+const onRecepcionConfirmada = async (datosRecepcion) => {
+  try {
+    await comprasService.recibirOrden(datosRecepcion.ordenId, datosRecepcion);
+    showRecepcionDialog.value = false;
+    await loadData();
 
-  // Actualizar datos de la orden
-  orden.estado = 'Recibida';
-  orden.fechaRecepcion = datosRecepcion.fechaRecepcion;
-  orden.recibidoPor = datosRecepcion.recibidoPor;
-  orden.ubicacionDestino = datosRecepcion.ubicacionDestino;
-  orden.observacionesRecepcion = datosRecepcion.observaciones;
-
-  // Actualizar items con cantidades recibidas
-  orden.items = datosRecepcion.items;
-
-  $q.notify({
-    color: 'positive',
-    message: `Recepción de orden ${orden.codigo} registrada correctamente`,
-    icon: 'inventory',
-    caption: 'Ahora puede ingresar los items al inventario'
-  });
+    $q.notify({
+      color: 'positive',
+      message: 'Recepción registrada correctamente',
+      icon: 'inventory',
+      caption: 'Ahora puede ingresar los items al inventario'
+    });
+  } catch (error) {
+    console.error('Error recibiendo orden:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al registrar recepción'
+    });
+  }
 };
 
 const ingresarAInventario = (orden) => {
   $q.dialog({
     title: 'Ingresar a Inventario',
-    message: `¿Confirma el ingreso de los items de la orden ${orden.codigo} al inventario?`,
+    message: `¿Confirma el ingreso de los items de la orden ${orden.codigo || ''} al inventario?`,
     html: true,
     cancel: true,
     persistent: true
-  }).onOk(() => {
+  }).onOk(async () => {
     try {
-      // Procesar orden de compra en el store de inventario
       const resultados = inventarioStore.procesarOrdenCompra(orden);
-
-      // Verificar si hubo errores
       const errores = resultados.filter(r => !r.success);
-      
+
       if (errores.length > 0) {
         $q.notify({
           color: 'warning',
-          message: `Algunos items no pudieron ser procesados`,
+          message: 'Algunos items no pudieron ser procesados',
           caption: errores.map(e => e.message).join(', ')
         });
       }
 
-      // Actualizar estado de la orden
-      orden.estado = 'Completada';
-      orden.fechaCompletado = new Date().toISOString();
+      await comprasService.updateOrden(orden.id, { estado: 'Completada' });
+      await loadData();
 
       $q.notify({
         color: 'positive',
-        message: `Orden ${orden.codigo} completada exitosamente`,
+        message: `Orden ${orden.codigo || ''} completada exitosamente`,
         icon: 'done_all',
         caption: `${resultados.filter(r => r.success).length} items agregados al inventario`
       });
-
     } catch (error) {
       $q.notify({
         color: 'negative',
@@ -509,18 +489,38 @@ const ingresarAInventario = (orden) => {
   });
 };
 
+// Helper para formatear fechas
+const formatDate = (fecha) => {
+  if (!fecha) return 'N/A';
+  try {
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-BO', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  } catch {
+    return 'N/A';
+  }
+};
+
 // Columnas para las tablas
 const ordenesColumns = [
   { name: 'codigo', align: 'left', label: 'Código', field: 'codigo', sortable: true },
   { name: 'fecha', align: 'left', label: 'Fecha', field: 'fecha', sortable: true },
-  { name: 'proveedor', align: 'left', label: 'Proveedor', field: 'proveedor' },
-  { name: 'items', align: 'center', label: 'Items', field: 'items' },
-  { name: 'subtotal', align: 'right', label: 'Subtotal (Bs.)', field: 'subtotal' },
-  { name: 'iva', align: 'right', label: 'IVA (Bs.)', field: 'iva' },
+  { name: 'proveedor', align: 'left', label: 'Proveedor', field: row => row.proveedor?.nombre || row.proveedor || 'N/A' },
+  { name: 'items', align: 'center', label: 'Items', field: row => Array.isArray(row.items) ? row.items.length : (row.items || 0) },
+  { name: 'subtotal', align: 'right', label: 'Subtotal (Bs.)', field: 'subtotal', format: val => Number(val || 0).toFixed(2) },
+  { name: 'iva', align: 'right', label: 'IVA (Bs.)', field: 'iva', format: val => Number(val || 0).toFixed(2) },
   { name: 'total', align: 'right', label: 'Total (Bs.)', field: 'total' },
   { name: 'estado', align: 'center', label: 'Estado', field: 'estado' },
   { name: 'actions', align: 'center', label: 'Acciones', field: 'actions' }
 ];
+
+// Cargar datos al montar
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <style scoped>

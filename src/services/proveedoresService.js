@@ -1,40 +1,57 @@
-// import api from './api'; // Descomentar cuando se active el backend
+import api from './api';
 
 const proveedoresService = {
-  async getProveedores(_params = {}) {
-    return Promise.resolve({ data: [], total: 0 });
+  async getProveedores(params = {}) {
+    const response = await api.get('/proveedores', { params });
+    return response.data;
   },
 
-  async getProveedor(_id) {
-    return Promise.resolve({});
+  async getProveedor(id) {
+    const response = await api.get(`/proveedores/${id}`);
+    return response.data;
   },
 
   async createProveedor(proveedorData) {
-    return Promise.resolve(proveedorData);
+    const response = await api.post('/proveedores', proveedorData);
+    return response.data;
   },
 
-  async updateProveedor(_id, proveedorData) {
-    return Promise.resolve(proveedorData);
+  async updateProveedor(id, proveedorData) {
+    const response = await api.put(`/proveedores/${id}`, proveedorData);
+    return response.data;
   },
 
-  async deleteProveedor(_id) {
-    return Promise.resolve({ success: true });
+  async deleteProveedor(id) {
+    const response = await api.delete(`/proveedores/${id}`);
+    return response.data;
   },
 
-  async getHistorialPrecios(_proveedorId = null, _itemId = null) {
-    return Promise.resolve({ data: [] });
+  async getHistorialPrecios(proveedorId = null, itemId = null) {
+    const params = {};
+    if (proveedorId) params.proveedor_id = proveedorId;
+    if (itemId) params.item_id = itemId;
+
+    const response = await api.get('/historial-precios', { params });
+    return response.data;
   },
 
-  async calificarProveedor(_id, calificacionData) {
-    return Promise.resolve(calificacionData);
+  async calificarProveedor(id, calificacionData) {
+    // Nota: Ajustar endpoint si es diferente en el backend
+    const response = await api.post(`/proveedores/${id}/calificar`, calificacionData);
+    return response.data;
   },
 
-  async getCalificaciones(_id) {
-    return Promise.resolve({ calificaciones: [] });
+  async getCalificaciones(id) {
+    // Nota: Ajustar endpoint si es diferente en el backend
+    const response = await api.get(`/proveedores/${id}/calificaciones`);
+    return response.data;
   },
 
-  async subirDocumento(_id, _formData) {
-    return Promise.resolve({ success: true });
+  async subirDocumento(id, formData) {
+    const response = await api.post(`/proveedores/${id}/documentos`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 };
 

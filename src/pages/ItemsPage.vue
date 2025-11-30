@@ -58,15 +58,8 @@
 
     <!-- Tabs de filtro -->
     <div class="q-mb-md">
-      <q-tabs
-        v-model="activeFilter"
-        dense
-        class="text-grey-8 bg-grey-2"
-        active-color="primary"
-        indicator-color="primary"
-        align="left"
-        narrow-indicator
-      >
+      <q-tabs v-model="activeFilter" dense class="text-grey-8 bg-grey-2" active-color="primary"
+        indicator-color="primary" align="left" narrow-indicator>
         <q-tab name="all" label="Todos los Ítems" />
         <q-tab name="stock" label="Alertas de Stock" :alert="stockBajo.length > 0" alert-icon="warning" />
       </q-tabs>
@@ -81,40 +74,15 @@
         </div>
         <div class="col-auto row q-col-gutter-md">
           <div>
-            <q-select
-              v-model="categoriaFilter"
-              :options="categoriaOptions"
-              label="Categoría"
-              outlined
-              dense
-              options-dense
-              emit-value
-              map-options
-              class="q-mr-sm"
-              style="width: 200px"
-            />
+            <q-select v-model="categoriaFilter" :options="categoriaOptions" label="Categoría" outlined dense
+              options-dense emit-value map-options class="q-mr-sm" style="width: 200px" />
           </div>
           <div>
-            <q-select
-              v-model="laboratorioFilter"
-              :options="laboratorioOptions"
-              label="Laboratorio"
-              outlined
-              dense
-              options-dense
-              emit-value
-              map-options
-              class="q-mr-sm"
-              style="width: 200px"
-            />
+            <q-select v-model="laboratorioFilter" :options="laboratorioOptions" label="Laboratorio" outlined dense
+              options-dense emit-value map-options class="q-mr-sm" style="width: 200px" />
           </div>
           <div>
-            <q-input
-              v-model="search"
-              outlined
-              dense
-              placeholder="Buscar ítem..."
-            >
+            <q-input v-model="search" outlined dense placeholder="Buscar ítem...">
               <template v-slot:append>
                 <q-icon name="search" />
               </template>
@@ -123,12 +91,7 @@
         </div>
       </div>
 
-      <q-table
-        :rows="filteredItems"
-        :columns="itemsColumns"
-        row-key="id"
-        :filter="search"
-      >
+      <q-table :rows="filteredItems" :columns="itemsColumns" row-key="id" :filter="search">
         <template v-slot:body-cell-unidadMedida="props">
           <q-td :props="props">
             {{ props.value }}
@@ -153,11 +116,7 @@
         </div>
       </div>
 
-      <q-table
-        :rows="stockBajo"
-        :columns="stockBajoColumns"
-        row-key="id"
-      >
+      <q-table :rows="stockBajo" :columns="stockBajoColumns" row-key="id">
         <template v-slot:body-cell-deficit="props">
           <q-td :props="props" class="text-negative">
             {{ props.value }}
@@ -173,17 +132,16 @@
     </div>
 
     <!-- Diálogo de Nuevo Ítem -->
-    <DialogNuevoItem
-      v-model="showNuevoItemDialog"
-      @item-added="onItemAdded"
-    />
+    <DialogNuevoItem v-model="showNuevoItemDialog" @item-added="onItemAdded" />
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import DialogNuevoItem from 'src/components/items/DialogNuevoItem.vue';
+import itemsService from 'src/services/itemsService';
+import categoriasService from 'src/services/categoriasService';
 
 const $q = useQuasar();
 
@@ -193,145 +151,110 @@ const activeFilter = ref('all');
 const search = ref('');
 const categoriaFilter = ref(null);
 const laboratorioFilter = ref(null);
+const loading = ref(false);
 
-// Opciones para filtros
-const categoriaOptions = [
-  { label: 'Todas las categorías', value: null },
-  { label: 'Reactivos Químicos', value: 'reactivos' },
-  { label: 'Material de Laboratorio', value: 'material' },
-  { label: 'Equipamiento', value: 'equipamiento' },
-  { label: 'Bioseguridad', value: 'bioseguridad' },
-  { label: 'Mobiliario', value: 'mobiliario' }
-];
+// Datos reactivos
+const items = ref([]);
+const categorias = ref([]);
+
+// Opciones para filtros (computadas desde datos reales)
+const categoriaOptions = computed(() => {
+  const options = categorias.value.map(c => ({ label: c.nombre, value: c.id }));
+  return [{ label: 'Todas las categorías', value: null }, ...options];
+});
 
 const laboratorioOptions = [
   { label: 'Todos los laboratorios', value: null },
-  { label: 'Lab. Química', value: 'lab_quimica' },
+  { label: 'Lab. Química', value: 'lab_quimica' }, // TODO: Cargar desde backend si existe endpoint
   { label: 'Lab. Física', value: 'lab_fisica' },
   { label: 'Lab. Biología', value: 'lab_biologia' },
   { label: 'Almacén Central', value: 'almacen_central' }
 ];
 
-// Datos de ítems
-const items = ref([
-  {
-    id: 1,
-    codigo: 'QUI-001',
-    nombre: 'Ácido Sulfúrico H2SO4',
-    categoria: 'reactivos',
-    tipo: 'Consumible',
-    area: 'Laboratorios',
-    laboratorio: 'lab_quimica',
-    unidadMedida: 'Litros',
-    stockActual: 5,
-    stockMinimo: 20,
-    estado: 'Activo'
-  },
-  {
-    id: 2,
-    codigo: 'BIO-045',
-    nombre: 'Guantes de Látex',
-    categoria: 'bioseguridad',
-    tipo: 'Consumible',
-    area: 'Laboratorios',
-    laboratorio: 'lab_quimica',
-    unidadMedida: 'Pares',
-    stockActual: 12,
-    stockMinimo: 50,
-    estado: 'Activo'
-  },
-  {
-    id: 3,
-    codigo: 'MAT-023',
-    nombre: 'Pipetas 10ml',
-    categoria: 'material',
-    tipo: 'A Préstamo',
-    area: 'Laboratorios',
-    laboratorio: 'lab_biologia',
-    unidadMedida: 'Unidades',
-    stockActual: 3,
-    stockMinimo: 15,
-    estado: 'Activo'
-  },
-  {
-    id: 4,
-    codigo: 'EQU-010',
-    nombre: 'Microscopio Binocular',
-    categoria: 'equipamiento',
-    tipo: 'A Préstamo',
-    area: 'Laboratorios',
-    laboratorio: 'lab_biologia',
-    unidadMedida: 'Unidades',
-    stockActual: 10,
-    stockMinimo: 5,
-    estado: 'Activo'
-  },
-  {
-    id: 5,
-    codigo: 'QUI-032',
-    nombre: 'Alcohol Etílico 96%',
-    categoria: 'reactivos',
-    tipo: 'Consumible',
-    area: 'Laboratorios',
-    laboratorio: 'lab_quimica',
-    unidadMedida: 'Litros',
-    stockActual: 8,
-    stockMinimo: 10,
-    estado: 'Activo'
-  },
-  {
-    id: 6,
-    codigo: 'ACT-001',
-    nombre: 'Escritorio Ejecutivo',
-    categoria: 'mobiliario',
-    tipo: 'Activo Fijo',
-    area: 'Activos',
-    laboratorio: 'almacen_central',
-    unidadMedida: 'Unidades',
-    stockActual: 50,
-    stockMinimo: 10,
-    estado: 'Activo'
+// Cargar datos
+const loadData = async () => {
+  loading.value = true;
+  try {
+    const [itemsData, categoriasData] = await Promise.all([
+      itemsService.getItems(),
+      categoriasService.getCategorias()
+    ]);
+
+    // Manejar paginación si es necesario
+    items.value = itemsData.data || itemsData;
+    categorias.value = categoriasData.data || categoriasData;
+  } catch (error) {
+    console.error('Error cargando datos:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al cargar el catálogo'
+    });
+  } finally {
+    loading.value = false;
   }
-]);
+};
+
+onMounted(() => {
+  loadData();
+});
 
 // Computed properties
 const filteredItems = computed(() => {
   return items.value.filter(item => {
-    if (categoriaFilter.value && item.categoria !== categoriaFilter.value) return false;
-    if (laboratorioFilter.value && item.laboratorio !== laboratorioFilter.value) return false;
+    // Filtro de búsqueda
+    if (search.value) {
+      const term = search.value.toLowerCase();
+      const matchCodigo = item.codigo?.toLowerCase().includes(term);
+      const matchNombre = item.nombre?.toLowerCase().includes(term);
+      if (!matchCodigo && !matchNombre) return false;
+    }
+
+    // Filtro de categoría
+    if (categoriaFilter.value && item.categoria_id !== categoriaFilter.value) return false;
+
+    // Filtro de laboratorio (Pendiente de implementar en backend relación item-laboratorio si aplica)
+    // if (laboratorioFilter.value && item.laboratorio !== laboratorioFilter.value) return false;
+
     return true;
   });
 });
 
-const activeItems = computed(() => items.value.filter(item => item.estado === 'Activo').length);
+const activeItems = computed(() => items.value.filter(item => item.activo).length);
 
-const consumibles = computed(() => items.value.filter(item => item.tipo === 'Consumible'));
+const consumibles = computed(() => items.value.filter(item => item.es_consumible));
 
-const retornables = computed(() => items.value.filter(item => item.tipo === 'A Préstamo' || item.tipo === 'Activo Fijo'));
+const retornables = computed(() => items.value.filter(item => !item.es_consumible));
 
-const stockBajo = computed(() => items.value.filter(item => item.stockActual < item.stockMinimo));
+const stockBajo = computed(() => {
+  return items.value.filter(item => {
+    const stock = Number(item.stock_total || 0);
+    const minimo = Number(item.stock_minimo || 0);
+    return stock < minimo;
+  });
+});
 
 // Métodos
-const onItemAdded = (item) => {
-  // Asignar ID único
-  const newItem = {
-    id: Date.now(),
-    ...item,
-    estado: 'Activo'
-  };
+const onItemAdded = async (item) => {
+  try {
+    await itemsService.createItem(item);
+    await loadData();
 
-  // Agregar a la lista
-  items.value.push(newItem);
-
-  $q.notify({
-    color: 'positive',
-    message: `Ítem ${item.nombre} agregado correctamente`,
-    icon: 'check_circle'
-  });
+    $q.notify({
+      color: 'positive',
+      message: `Ítem ${item.nombre} agregado correctamente`,
+      icon: 'check_circle'
+    });
+  } catch (error) {
+    console.error('Error creando ítem:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al crear el ítem'
+    });
+  }
 };
 
 const getPrioridadColor = (prioridad) => {
-  switch(prioridad) {
+  switch (prioridad) {
     case 'Alta': return 'negative';
     case 'Media': return 'warning';
     case 'Baja': return 'blue';
@@ -343,23 +266,23 @@ const getPrioridadColor = (prioridad) => {
 const itemsColumns = [
   { name: 'codigo', align: 'left', label: 'Código', field: 'codigo', sortable: true },
   { name: 'nombre', align: 'left', label: 'Nombre', field: 'nombre', sortable: true },
-  { name: 'tipo', align: 'left', label: 'Tipo', field: 'tipo', sortable: true },
-  { name: 'area', align: 'left', label: 'Área', field: 'area', sortable: true },
-  { name: 'categoria', align: 'left', label: 'Categoría', field: 'categoria' },
-  { name: 'laboratorio', align: 'left', label: 'Ubicación', field: 'laboratorio' },
-  { name: 'unidadMedida', align: 'center', label: 'Unidad', field: 'unidadMedida' },
-  { name: 'stockActual', align: 'center', label: 'Stock', field: 'stockActual' },
+  { name: 'tipo', align: 'left', label: 'Tipo', field: row => row.es_consumible ? 'Consumible' : 'Activo/Equipo', sortable: true },
+  { name: 'categoria', align: 'left', label: 'Categoría', field: row => row.categoria?.nombre || 'N/A' },
+  { name: 'subcategoria', align: 'left', label: 'Subcategoría', field: row => row.subcategoria?.nombre || 'N/A' },
+  { name: 'unidadMedida', align: 'center', label: 'Unidad', field: 'unidad_medida_base' },
+  { name: 'marca', align: 'left', label: 'Marca', field: 'marca' },
+  { name: 'stockActual', align: 'center', label: 'Stock Total', field: row => Number(row.stock_total || 0), sortable: true },
   { name: 'actions', align: 'center', label: 'Acciones', field: 'actions' }
 ];
 
 const stockBajoColumns = [
   { name: 'codigo', align: 'left', label: 'Código', field: 'codigo' },
   { name: 'nombre', align: 'left', label: 'Nombre', field: 'nombre' },
-  { name: 'categoria', align: 'left', label: 'Categoría', field: 'categoria' },
-  { name: 'stockActual', align: 'center', label: 'Stock Actual', field: 'stockActual' },
-  { name: 'stockMinimo', align: 'center', label: 'Stock Mínimo', field: 'stockMinimo' },
-  { name: 'deficit', align: 'center', label: 'Déficit', field: row => `${row.stockMinimo - row.stockActual} ${row.unidadMedida}` },
-  { name: 'prioridad', align: 'center', label: 'Prioridad', field: row => row.stockActual === 0 ? 'Alta' : (row.stockActual < row.stockMinimo / 2 ? 'Media' : 'Baja') }
+  { name: 'categoria', align: 'left', label: 'Categoría', field: row => row.categoria?.nombre },
+  { name: 'stockActual', align: 'center', label: 'Stock Actual', field: row => Number(row.stock_total || 0) },
+  { name: 'stockMinimo', align: 'center', label: 'Stock Mínimo', field: 'stock_minimo' },
+  { name: 'deficit', align: 'center', label: 'Déficit', field: row => `${Number(row.stock_minimo) - Number(row.stock_total || 0)} ${row.unidad_medida_base}` },
+  { name: 'prioridad', align: 'center', label: 'Prioridad', field: row => Number(row.stock_total || 0) === 0 ? 'Alta' : (Number(row.stock_total || 0) < Number(row.stock_minimo) / 2 ? 'Media' : 'Baja') }
 ];
 </script>
 

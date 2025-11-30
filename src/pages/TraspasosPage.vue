@@ -59,15 +59,8 @@
 
     <!-- Tabs de filtro -->
     <div class="q-mb-md">
-      <q-tabs
-        v-model="activeTab"
-        dense
-        class="text-grey-8 bg-grey-2"
-        active-color="primary"
-        indicator-color="primary"
-        align="left"
-        narrow-indicator
-      >
+      <q-tabs v-model="activeTab" dense class="text-grey-8 bg-grey-2" active-color="primary" indicator-color="primary"
+        align="left" narrow-indicator>
         <q-tab name="pendientes" label="Pendientes" :alert="traspasosPendientes.length > 0" />
         <q-tab name="transito" label="En Tránsito" />
         <q-tab name="completados" label="Completados" />
@@ -82,25 +75,11 @@
       </div>
       <div class="col-auto row q-col-gutter-md">
         <div>
-          <q-select
-            v-model="ubicacionFilter"
-            :options="ubicacionOptions"
-            label="Ubicación"
-            outlined
-            dense
-            options-dense
-            emit-value
-            map-options
-            style="width: 200px"
-          />
+          <q-select v-model="ubicacionFilter" :options="ubicacionOptions" label="Ubicación" outlined dense options-dense
+            emit-value map-options style="width: 200px" />
         </div>
         <div>
-          <q-input
-            v-model="search"
-            outlined
-            dense
-            placeholder="Buscar traspaso..."
-          >
+          <q-input v-model="search" outlined dense placeholder="Buscar traspaso...">
             <template v-slot:append>
               <q-icon name="search" />
             </template>
@@ -110,19 +89,11 @@
     </div>
 
     <!-- Tabla de traspasos -->
-    <q-table
-      :rows="filteredTraspasos"
-      :columns="traspasosColumns"
-      row-key="id"
-      :filter="search"
-      :pagination="{ rowsPerPage: 10 }"
-    >
+    <q-table :rows="filteredTraspasos" :columns="traspasosColumns" row-key="id" :filter="search"
+      :pagination="{ rowsPerPage: 10 }">
       <template v-slot:body-cell-estado="props">
         <q-td :props="props">
-          <q-badge
-            :color="getEstadoColor(props.value)"
-            :label="props.value"
-          />
+          <q-badge :color="getEstadoColor(props.value)" :label="props.value" />
         </q-td>
       </template>
 
@@ -146,40 +117,16 @@
 
       <template v-slot:body-cell-actions="props">
         <q-td :props="props">
-          <q-btn 
-            v-if="props.row.estado === 'Pendiente'"
-            size="sm" 
-            flat 
-            round 
-            dense 
-            icon="check" 
-            color="positive"
-            @click="aprobarTraspaso(props.row)"
-          >
+          <q-btn v-if="props.row.estado === 'Pendiente'" size="sm" flat round dense icon="check" color="positive"
+            @click="aprobarTraspaso(props.row)">
             <q-tooltip>Aprobar traspaso</q-tooltip>
           </q-btn>
-          <q-btn 
-            v-if="props.row.estado === 'Pendiente'"
-            size="sm" 
-            flat 
-            round 
-            dense 
-            icon="close" 
-            color="negative"
-            @click="rechazarTraspaso(props.row)"
-          >
+          <q-btn v-if="props.row.estado === 'Pendiente'" size="sm" flat round dense icon="close" color="negative"
+            @click="rechazarTraspaso(props.row)">
             <q-tooltip>Rechazar traspaso</q-tooltip>
           </q-btn>
-          <q-btn 
-            v-if="props.row.estado === 'En Tránsito'"
-            size="sm" 
-            flat 
-            round 
-            dense 
-            icon="done_all" 
-            color="primary"
-            @click="completarTraspaso(props.row)"
-          >
+          <q-btn v-if="props.row.estado === 'En Tránsito'" size="sm" flat round dense icon="done_all" color="primary"
+            @click="completarTraspaso(props.row)">
             <q-tooltip>Marcar como completado</q-tooltip>
           </q-btn>
           <q-btn size="sm" flat round dense icon="visibility" color="blue">
@@ -190,70 +137,27 @@
     </q-table>
 
     <!-- Diálogo de Nuevo Traspaso -->
-    <BaseModal
-      v-model="showNuevoTraspasoDialog"
-      title="Nuevo Traspaso"
-      size="md"
-      confirm-label="Crear Traspaso"
-      @confirm="crearTraspaso"
-      @cancel="showNuevoTraspasoDialog = false"
-    >
-      <q-select
-        v-model="traspasoForm.itemId"
-        :options="itemsDisponibles"
-        label="Ítem a traspasar"
-        outlined
-        emit-value
-        map-options
-        class="q-mb-md"
-      />
+    <BaseModal v-model="showNuevoTraspasoDialog" title="Nuevo Traspaso" size="md" confirm-label="Crear Traspaso"
+      @confirm="crearTraspaso" @cancel="showNuevoTraspasoDialog = false">
+      <q-select v-model="traspasoForm.itemId" :options="itemsDisponibles" label="Ítem a traspasar" outlined emit-value
+        map-options class="q-mb-md" />
 
       <div class="row q-col-gutter-md q-mb-md">
         <div class="col-6">
-          <q-select
-            v-model="traspasoForm.origen"
-            :options="almacenesOptions"
-            label="Ubicación Origen"
-            outlined
-            emit-value
-            map-options
-          />
+          <q-select v-model="traspasoForm.origen" :options="almacenesOptions" label="Ubicación Origen" outlined
+            emit-value map-options />
         </div>
         <div class="col-6">
-          <q-select
-            v-model="traspasoForm.destino"
-            :options="destinoOptions"
-            label="Ubicación Destino"
-            outlined
-            emit-value
-            map-options
-            :disable="!traspasoForm.origen"
-          />
+          <q-select v-model="traspasoForm.destino" :options="destinoOptions" label="Ubicación Destino" outlined
+            emit-value map-options :disable="!traspasoForm.origen" />
         </div>
       </div>
 
-      <q-input
-        v-model.number="traspasoForm.cantidad"
-        type="number"
-        label="Cantidad"
-        outlined
-        class="q-mb-md"
-      />
+      <q-input v-model.number="traspasoForm.cantidad" type="number" label="Cantidad" outlined class="q-mb-md" />
 
-      <q-input
-        v-model="traspasoForm.solicitante"
-        label="Solicitante"
-        outlined
-        class="q-mb-md"
-      />
+      <q-input v-model="traspasoForm.solicitante" label="Solicitante" outlined class="q-mb-md" />
 
-      <q-input
-        v-model="traspasoForm.motivo"
-        type="textarea"
-        label="Motivo del traspaso"
-        outlined
-        rows="3"
-      />
+      <q-input v-model="traspasoForm.motivo" type="textarea" label="Motivo del traspaso" outlined rows="3" />
     </BaseModal>
   </q-page>
 </template>
@@ -263,36 +167,13 @@ import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { useInventarioStore } from 'src/stores/store-inventario';
 import BaseModal from 'src/components/common/BaseModal.vue';
-import SeguimientoDialog from 'src/components/common/SeguimientoDialog.vue';
 
 const $q = useQuasar();
 const inventarioStore = useInventarioStore();
 
 // Estado
 const showNuevoTraspasoDialog = ref(false);
-const showSeguimientoDialog = ref(false);
-const seguimientoSteps = ref([]);
 const activeTab = ref('pendientes');
-
-const viewSeguimiento = (traspaso) => {
-  const steps = [
-    { titulo: 'Solicitud Creada', fecha: traspaso.fecha, descripcion: `Solicitado por ${traspaso.solicitante}`, icon: 'edit', color: 'primary' }
-  ];
-
-  if (traspaso.estado === 'En Tránsito' || traspaso.estado === 'Completado') {
-    steps.push({ titulo: 'Aprobado', fecha: traspaso.fecha, descripcion: 'Salida de origen registrada', icon: 'check', color: 'primary' });
-    steps.push({ titulo: 'En Tránsito', fecha: traspaso.fecha, descripcion: 'Material en movimiento', icon: 'local_shipping', color: 'blue' });
-  }
-
-  if (traspaso.estado === 'Completado') {
-    steps.push({ titulo: 'Recepción', fecha: traspaso.fechaCompletado || traspaso.fecha, descripcion: 'Entrada en destino registrada', icon: 'check_circle', color: 'positive' });
-  } else if (traspaso.estado === 'Rechazado') {
-    steps.push({ titulo: 'Rechazado', fecha: traspaso.fecha, descripcion: 'Solicitud rechazada', icon: 'cancel', color: 'negative' });
-  }
-
-  seguimientoSteps.value = steps;
-  showSeguimientoDialog.value = true;
-};
 const search = ref('');
 const ubicacionFilter = ref(null);
 
@@ -405,7 +286,7 @@ const filteredTraspasos = computed(() => {
   let filtered = traspasos.value;
 
   // Filtrar por tab
-  switch(activeTab.value) {
+  switch (activeTab.value) {
     case 'pendientes':
       filtered = traspasosPendientes.value;
       break;
@@ -419,7 +300,7 @@ const filteredTraspasos = computed(() => {
 
   // Filtrar por ubicación
   if (ubicacionFilter.value) {
-    filtered = filtered.filter(t => 
+    filtered = filtered.filter(t =>
       t.origen === ubicacionFilter.value || t.destino === ubicacionFilter.value
     );
   }
@@ -429,7 +310,7 @@ const filteredTraspasos = computed(() => {
 
 // Métodos
 const getTabTitle = () => {
-  switch(activeTab.value) {
+  switch (activeTab.value) {
     case 'pendientes': return 'Traspasos Pendientes';
     case 'transito': return 'Traspasos en Tránsito';
     case 'completados': return 'Traspasos Completados';
@@ -439,7 +320,7 @@ const getTabTitle = () => {
 };
 
 const getEstadoColor = (estado) => {
-  switch(estado) {
+  switch (estado) {
     case 'Pendiente': return 'warning';
     case 'En Tránsito': return 'blue';
     case 'Completado': return 'positive';
@@ -455,7 +336,7 @@ const getUbicacionLabel = (value) => {
 
 const crearTraspaso = () => {
   const itemInfo = itemsDisponibles.value.find(i => i.value === traspasoForm.value.itemId);
-  
+
   if (!itemInfo) {
     $q.notify({
       color: 'negative',

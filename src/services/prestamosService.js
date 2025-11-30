@@ -1,48 +1,92 @@
-// import api from './api'; // Descomentar cuando se active el backend
+import api from './api';
 
 const prestamosService = {
-  async getPrestamos(_params = {}) {
-    return Promise.resolve({ data: [], total: 0 });
+  /**
+   * Obtener todos los préstamos
+   */
+  async getPrestamos(params = {}) {
+    const response = await api.get('/prestamos', { params });
+    return response.data;
   },
 
-  async getPrestamo(_id) {
-    return Promise.resolve({});
+  /**
+   * Obtener un préstamo por ID
+   */
+  async getPrestamo(id) {
+    const response = await api.get(`/prestamos/${id}`);
+    return response.data;
   },
 
+  /**
+   * Crear nuevo préstamo
+   */
   async createPrestamo(prestamoData) {
-    return Promise.resolve(prestamoData);
+    const response = await api.post('/prestamos', prestamoData);
+    return response.data;
   },
 
-  async devolverPrestamo(_id, devolucionData) {
-    return Promise.resolve(devolucionData);
+  /**
+   * Actualizar préstamo
+   */
+  async updatePrestamo(id, prestamoData) {
+    const response = await api.put(`/prestamos/${id}`, prestamoData);
+    return response.data;
   },
 
-  async renovarPrestamo(_id, renovacionData) {
-    return Promise.resolve(renovacionData);
+  /**
+   * Devolver préstamo
+   */
+  async devolverPrestamo(id, devolucionData) {
+    const response = await api.post(`/prestamos/${id}/devolver`, devolucionData);
+    return response.data;
   },
 
-  async getMultas(_params = {}) {
-    return Promise.resolve({ data: [] });
+  /**
+   * Cancelar préstamo
+   */
+  async cancelarPrestamo(id, motivo) {
+    const response = await api.post(`/prestamos/${id}/cancelar`, { motivo });
+    return response.data;
   },
 
-  async registrarMulta(multaData) {
-    return Promise.resolve(multaData);
+  /**
+   * Obtener préstamos activos
+   */
+  async getPrestamosActivos(params = {}) {
+    const response = await api.get('/prestamos/activos', { params });
+    return response.data;
   },
 
-  async pagarMulta(_id) {
-    return Promise.resolve({ success: true });
+  /**
+   * Obtener préstamos vencidos
+   */
+  async getPrestamosVencidos(params = {}) {
+    const response = await api.get('/prestamos/vencidos', { params });
+    return response.data;
   },
 
-  async getHistorialUsuario(_usuarioId) {
-    return Promise.resolve({ prestamos: [] });
+  /**
+   * Obtener devoluciones programadas para hoy
+   */
+  async getDevolucionesHoy() {
+    const response = await api.get('/prestamos/devoluciones-hoy');
+    return response.data;
   },
 
-  async createReserva(reservaData) {
-    return Promise.resolve(reservaData);
+  /**
+   * Obtener historial de préstamos
+   */
+  async getHistorial(params = {}) {
+    const response = await api.get('/prestamos/historial', { params });
+    return response.data;
   },
 
-  async getReservas(_params = {}) {
-    return Promise.resolve({ data: [] });
+  /**
+   * Enviar recordatorio manual
+   */
+  async enviarRecordatorio(id) {
+    const response = await api.post(`/prestamos/${id}/recordatorio`);
+    return response.data;
   },
 };
 

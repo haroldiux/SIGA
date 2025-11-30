@@ -1,37 +1,34 @@
-// import api from './api'; // Descomentar cuando se active el backend
+import api from './api';
 
 const authService = {
   /**
    * Iniciar sesión
    */
   async login(credentials) {
-    // const response = await api.post('/auth/login', credentials);
-    // const { token, user } = response.data;
-    // localStorage.setItem('auth_token', token);
-    // localStorage.setItem('user_data', JSON.stringify(user));
-    // return { token, user };
-    
-    // SIMULADO
-    const mockUser = {
-      id: 1,
-      nombre: 'Usuario Demo',
-      email: credentials.email,
-      rol: 'Super Administrador',
-    };
-    const mockToken = 'mock-jwt-token-' + Date.now();
-    localStorage.setItem('auth_token', mockToken);
-    localStorage.setItem('user_data', JSON.stringify(mockUser));
-    return Promise.resolve({ token: mockToken, user: mockUser });
+    const response = await api.post('/login', credentials);
+    const { token, user, password_changed } = response.data;
+
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('user_data', JSON.stringify(user));
+    localStorage.setItem('password_changed', password_changed ? 'true' : 'false');
+
+    return { token, user, password_changed };
   },
 
   /**
    * Cerrar sesión
    */
   async logout() {
-    // await api.post('/auth/logout');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    return Promise.resolve({ success: true });
+    try {
+      await api.post('/logout');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    } finally {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('password_changed');
+    }
+    return { success: true };
   },
 
   /**
@@ -50,25 +47,36 @@ const authService = {
   },
 
   /**
-   * Refrescar token
+   * Verificar si cambió la contraseña
    */
-  async refreshToken() {
-    // const response = await api.post('/auth/refresh');
-    // const { token } = response.data;
-    // localStorage.setItem('auth_token', token);
-    // return token;
-    
-    return Promise.resolve('refreshed-token');
+  hasChangedPassword() {
+    return localStorage.getItem('password_changed') === 'true';
+  },
+
+  /**
+   * Obtener información del usuario desde el servidor
+   */
+  async me() {
+    const response = await api.get('/me');
+    const { user, password_changed } = response.data;
+
+    localStorage.setItem('user_data', JSON.stringify(user));
+    localStorage.setItem('password_changed', password_changed ? 'true' : 'false');
+
+    return { user, password_changed };
   },
 
   /**
    * Cambiar contraseña
    */
-  async changePassword(_passwordData) {
-    // const response = await api.post('/auth/change-password', passwordData);
-    // return response.data;
-    
-    return Promise.resolve({ success: true });
+  async changePassword(passwordData) {
+    const response = await api.post('/change-password', passwordData);
+    const { user, password_changed } = response.data;
+
+    localStorage.setItem('user_data', JSON.stringify(user));
+    localStorage.setItem('password_changed', password_changed ? 'true' : 'false');
+
+    return response.data;
   },
 };
 

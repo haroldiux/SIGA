@@ -10,7 +10,8 @@
       </div>
       <div class="col-auto">
         <q-btn color="primary" icon="add" label="Registrar Entrada" @click="showEntradaDialog = true" />
-        <q-btn color="secondary" icon="remove" label="Registrar Salida" @click="showSalidaDialog = true" class="q-ml-sm" />
+        <q-btn color="secondary" icon="remove" label="Registrar Salida" @click="showSalidaDialog = true"
+          class="q-ml-sm" />
       </div>
     </div>
 
@@ -65,38 +66,15 @@
       </div>
       <div class="col-auto row q-col-gutter-md">
         <div>
-          <q-select
-            v-model="ubicacionFilter"
-            :options="ubicacionOptions"
-            label="Ubicación"
-            outlined
-            dense
-            options-dense
-            emit-value
-            map-options
-            style="width: 200px"
-          />
+          <q-select v-model="ubicacionFilter" :options="ubicacionOptions" label="Ubicación" outlined dense options-dense
+            emit-value map-options style="width: 200px" />
         </div>
         <div>
-          <q-select
-            v-model="estadoFilter"
-            :options="estadoOptions"
-            label="Estado de Stock"
-            outlined
-            dense
-            options-dense
-            emit-value
-            map-options
-            style="width: 200px"
-          />
+          <q-select v-model="estadoFilter" :options="estadoOptions" label="Estado de Stock" outlined dense options-dense
+            emit-value map-options style="width: 200px" />
         </div>
         <div>
-          <q-input
-            v-model="search"
-            outlined
-            dense
-            placeholder="Buscar ítem..."
-          >
+          <q-input v-model="search" outlined dense placeholder="Buscar ítem...">
             <template v-slot:append>
               <q-icon name="search" />
             </template>
@@ -106,19 +84,11 @@
     </div>
 
     <!-- Tabla de inventario -->
-    <q-table
-      :rows="filteredInventario"
-      :columns="inventarioColumns"
-      row-key="id"
-      :filter="search"
-      :pagination="{ rowsPerPage: 10 }"
-    >
+    <q-table :rows="filteredInventario" :columns="inventarioColumns" row-key="id" :filter="search"
+      :pagination="{ rowsPerPage: 10 }">
       <template v-slot:body-cell-stockStatus="props">
         <q-td :props="props">
-          <q-badge
-            :color="getStockStatusColor(props.row)"
-            :label="getStockStatusLabel(props.row)"
-          />
+          <q-badge :color="getStockStatusColor(props.row)" :label="getStockStatusLabel(props.row)" />
         </q-td>
       </template>
 
@@ -152,97 +122,35 @@
     </q-table>
 
     <!-- Diálogo de Entrada -->
-    <BaseModal
-      v-model="showEntradaDialog"
-      title="Registrar Entrada de Inventario"
-      size="md"
-      confirm-label="Registrar Entrada"
-      @confirm="registrarEntrada"
-      @cancel="showEntradaDialog = false"
-    >
-      <q-select
-        v-model="entradaForm.itemId"
-        :options="itemOptions"
-        label="Ítem"
-        outlined
-        emit-value
-        map-options
-        class="q-mb-md"
-      />
-      <q-input
-        v-model.number="entradaForm.cantidad"
-        type="number"
-        label="Cantidad"
-        outlined
-        class="q-mb-md"
-      />
-      <q-select
-        v-model="entradaForm.ubicacion"
-        :options="ubicacionOptions"
-        label="Ubicación"
-        outlined
-        emit-value
-        map-options
-        class="q-mb-md"
-      />
-      <q-input
-        v-model="entradaForm.observaciones"
-        type="textarea"
-        label="Observaciones"
-        outlined
-        rows="3"
-      />
+    <BaseModal v-model="showEntradaDialog" title="Registrar Entrada de Inventario" size="md"
+      confirm-label="Registrar Entrada" @confirm="registrarEntrada" @cancel="showEntradaDialog = false">
+      <q-select v-model="entradaForm.itemId" :options="itemOptions" label="Ítem" outlined emit-value map-options
+        class="q-mb-md" />
+      <q-input v-model.number="entradaForm.cantidad" type="number" label="Cantidad" outlined class="q-mb-md" />
+      <q-select v-model="entradaForm.ubicacion" :options="ubicacionOptions" label="Ubicación" outlined emit-value
+        map-options class="q-mb-md" />
+      <q-input v-model="entradaForm.observaciones" type="textarea" label="Observaciones" outlined rows="3" />
     </BaseModal>
 
     <!-- Diálogo de Salida -->
-    <BaseModal
-      v-model="showSalidaDialog"
-      title="Registrar Salida de Inventario"
-      size="md"
-      confirm-label="Registrar Salida"
-      @confirm="registrarSalida"
-      @cancel="showSalidaDialog = false"
-    >
-      <q-select
-        v-model="salidaForm.itemId"
-        :options="itemOptions"
-        label="Ítem"
-        outlined
-        emit-value
-        map-options
-        class="q-mb-md"
-      />
-      <q-input
-        v-model.number="salidaForm.cantidad"
-        type="number"
-        label="Cantidad"
-        outlined
-        class="q-mb-md"
-      />
-      <q-select
-        v-model="salidaForm.motivo"
-        :options="motivoOptions"
-        label="Motivo"
-        outlined
-        emit-value
-        map-options
-        class="q-mb-md"
-      />
-      <q-input
-        v-model="salidaForm.observaciones"
-        type="textarea"
-        label="Observaciones"
-        outlined
-        rows="3"
-      />
+    <BaseModal v-model="showSalidaDialog" title="Registrar Salida de Inventario" size="md"
+      confirm-label="Registrar Salida" @confirm="registrarSalida" @cancel="showSalidaDialog = false">
+      <q-select v-model="salidaForm.itemId" :options="itemOptions" label="Ítem" outlined emit-value map-options
+        class="q-mb-md" />
+      <q-input v-model.number="salidaForm.cantidad" type="number" label="Cantidad" outlined class="q-mb-md" />
+      <q-select v-model="salidaForm.motivo" :options="motivoOptions" label="Motivo" outlined emit-value map-options
+        class="q-mb-md" />
+      <q-input v-model="salidaForm.observaciones" type="textarea" label="Observaciones" outlined rows="3" />
     </BaseModal>
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import BaseModal from 'src/components/common/BaseModal.vue';
+import inventarioService from 'src/services/inventarioService';
+import itemsService from 'src/services/itemsService';
 
 const $q = useQuasar();
 
@@ -252,6 +160,7 @@ const showSalidaDialog = ref(false);
 const search = ref('');
 const ubicacionFilter = ref(null);
 const estadoFilter = ref(null);
+const loading = ref(false);
 
 // Formularios
 const entradaForm = ref({
@@ -271,7 +180,7 @@ const salidaForm = ref({
 // Opciones
 const ubicacionOptions = [
   { label: 'Todas las ubicaciones', value: null },
-  { label: 'Lab. Química', value: 'lab_quimica' },
+  { label: 'Lab. Química', value: 'lab_quimica' }, // TODO: Cargar desde backend
   { label: 'Lab. Física', value: 'lab_fisica' },
   { label: 'Lab. Biología', value: 'lab_biologia' },
   { label: 'Almacén Central', value: 'almacen_central' }
@@ -284,13 +193,7 @@ const estadoOptions = [
   { label: 'Sin Stock', value: 'agotado' }
 ];
 
-const itemOptions = [
-  { label: 'Ácido Sulfúrico H2SO4', value: 1 },
-  { label: 'Guantes de Látex', value: 2 },
-  { label: 'Pipetas 10ml', value: 3 },
-  { label: 'Microscopio Binocular', value: 4 },
-  { label: 'Alcohol Etílico 96%', value: 5 }
-];
+const itemOptions = ref([]);
 
 const motivoOptions = [
   { label: 'Uso en laboratorio', value: 'uso' },
@@ -301,113 +204,95 @@ const motivoOptions = [
 ];
 
 // Datos de inventario
-const inventario = ref([
-  {
-    id: 1,
-    codigo: 'QUI-001',
-    nombre: 'Ácido Sulfúrico H2SO4',
-    categoria: 'Reactivos Químicos',
-    ubicacion: 'lab_quimica',
-    stockActual: 5,
-    stockMinimo: 20,
-    unidadMedida: 'Litros',
-    ultimoMovimiento: '2025-11-15'
-  },
-  {
-    id: 2,
-    codigo: 'BIO-045',
-    nombre: 'Guantes de Látex',
-    categoria: 'Bioseguridad',
-    ubicacion: 'lab_quimica',
-    stockActual: 12,
-    stockMinimo: 50,
-    unidadMedida: 'Pares',
-    ultimoMovimiento: '2025-11-18'
-  },
-  {
-    id: 3,
-    codigo: 'MAT-023',
-    nombre: 'Pipetas 10ml',
-    categoria: 'Material de Laboratorio',
-    ubicacion: 'lab_biologia',
-    stockActual: 3,
-    stockMinimo: 15,
-    unidadMedida: 'Unidades',
-    ultimoMovimiento: '2025-11-10'
-  },
-  {
-    id: 4,
-    codigo: 'EQU-010',
-    nombre: 'Microscopio Binocular',
-    categoria: 'Equipamiento',
-    ubicacion: 'lab_biologia',
-    stockActual: 10,
-    stockMinimo: 5,
-    unidadMedida: 'Unidades',
-    ultimoMovimiento: '2025-11-19'
-  },
-  {
-    id: 5,
-    codigo: 'QUI-032',
-    nombre: 'Alcohol Etílico 96%',
-    categoria: 'Reactivos Químicos',
-    ubicacion: 'lab_quimica',
-    stockActual: 8,
-    stockMinimo: 10,
-    unidadMedida: 'Litros',
-    ultimoMovimiento: '2025-11-17'
-  },
-  {
-    id: 6,
-    codigo: 'MAT-015',
-    nombre: 'Tubos de Ensayo',
-    categoria: 'Material de Laboratorio',
-    ubicacion: 'almacen_central',
-    stockActual: 0,
-    stockMinimo: 100,
-    unidadMedida: 'Unidades',
-    ultimoMovimiento: '2025-11-05'
+const inventario = ref([]);
+
+// Cargar datos
+const loadData = async () => {
+  loading.value = true;
+  try {
+    const [inventarioData, itemsData] = await Promise.all([
+      inventarioService.getInventario(),
+      itemsService.getItems()
+    ]);
+
+    inventario.value = inventarioData.data || inventarioData;
+
+    // Cargar opciones de items para los selectores
+    const itemsList = itemsData.data || itemsData;
+    itemOptions.value = itemsList.map(item => ({
+      label: item.nombre,
+      value: item.id
+    }));
+
+  } catch (error) {
+    console.error('Error cargando inventario:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al cargar el inventario'
+    });
+  } finally {
+    loading.value = false;
   }
-]);
+};
+
+onMounted(() => {
+  loadData();
+});
 
 // Computed
 const filteredInventario = computed(() => {
   return inventario.value.filter(item => {
-    if (ubicacionFilter.value && item.ubicacion !== ubicacionFilter.value) return false;
+    // Filtro de ubicación (si aplica en backend, mejor filtrar allá)
+    // if (ubicacionFilter.value && item.ubicacion !== ubicacionFilter.value) return false;
+
+    // Filtro de estado
     if (estadoFilter.value) {
       const status = getStockStatus(item);
       if (estadoFilter.value !== status) return false;
     }
+
+    // Filtro de búsqueda
+    if (search.value) {
+      const term = search.value.toLowerCase();
+      const matchCodigo = item.item?.codigo?.toLowerCase().includes(term);
+      const matchNombre = item.item?.nombre?.toLowerCase().includes(term);
+      if (!matchCodigo && !matchNombre) return false;
+    }
+
     return true;
   });
 });
 
 const totalStock = computed(() => {
-  return inventario.value.reduce((sum, item) => sum + item.stockActual, 0);
+  return inventario.value.reduce((sum, item) => sum + Number(item.cantidad_actual), 0);
 });
 
 const stockBajo = computed(() => {
-  return inventario.value.filter(item => item.stockActual > 0 && item.stockActual < item.stockMinimo);
+  return inventario.value.filter(item => Number(item.cantidad_actual) > 0 && Number(item.cantidad_actual) < Number(item.stock_minimo));
 });
 
 const sinStock = computed(() => {
-  return inventario.value.filter(item => item.stockActual === 0);
+  return inventario.value.filter(item => Number(item.cantidad_actual) === 0);
 });
 
 const ubicaciones = computed(() => {
-  return [...new Set(inventario.value.map(item => item.ubicacion))];
+  // TODO: Ajustar cuando tengamos ubicaciones reales
+  return [...new Set(inventario.value.map(item => item.almacen?.nombre || 'Sin ubicación'))];
 });
 
 // Métodos
 const getStockStatus = (item) => {
-  if (item.stockActual === 0) return 'agotado';
-  if (item.stockActual < item.stockMinimo) return 'bajo';
+  const actual = Number(item.cantidad_actual);
+  const minimo = Number(item.stock_minimo);
+
+  if (actual === 0) return 'agotado';
+  if (actual < minimo) return 'bajo';
   return 'normal';
 };
 
 const getStockStatusColor = (item) => {
   const status = getStockStatus(item);
-  switch(status) {
+  switch (status) {
     case 'agotado': return 'negative';
     case 'bajo': return 'warning';
     case 'normal': return 'positive';
@@ -417,7 +302,7 @@ const getStockStatusColor = (item) => {
 
 const getStockStatusLabel = (item) => {
   const status = getStockStatus(item);
-  switch(status) {
+  switch (status) {
     case 'agotado': return 'Agotado';
     case 'bajo': return 'Stock Bajo';
     case 'normal': return 'Normal';
@@ -425,58 +310,72 @@ const getStockStatusLabel = (item) => {
   }
 };
 
-const registrarEntrada = () => {
-  const item = inventario.value.find(i => i.id === entradaForm.value.itemId);
-  if (item) {
-    item.stockActual += entradaForm.value.cantidad;
-    item.ultimoMovimiento = new Date().toISOString().split('T')[0];
-    
+const registrarEntrada = async () => {
+  try {
+    await inventarioService.registrarEntrada({
+      item_id: entradaForm.value.itemId,
+      cantidad: entradaForm.value.cantidad,
+      ubicacion_id: entradaForm.value.ubicacion, // Ajustar según backend
+      observaciones: entradaForm.value.observaciones
+    });
+
+    await loadData();
+
     $q.notify({
       color: 'positive',
-      message: `Entrada registrada: +${entradaForm.value.cantidad} ${item.unidadMedida}`,
+      message: 'Entrada registrada correctamente',
       icon: 'check_circle'
     });
-    
+
     showEntradaDialog.value = false;
     entradaForm.value = { itemId: null, cantidad: 0, ubicacion: null, observaciones: '' };
+  } catch (error) {
+    console.error('Error registrando entrada:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al registrar entrada'
+    });
   }
 };
 
-const registrarSalida = () => {
-  const item = inventario.value.find(i => i.id === salidaForm.value.itemId);
-  if (item) {
-    if (item.stockActual >= salidaForm.value.cantidad) {
-      item.stockActual -= salidaForm.value.cantidad;
-      item.ultimoMovimiento = new Date().toISOString().split('T')[0];
-      
-      $q.notify({
-        color: 'positive',
-        message: `Salida registrada: -${salidaForm.value.cantidad} ${item.unidadMedida}`,
-        icon: 'check_circle'
-      });
-      
-      showSalidaDialog.value = false;
-      salidaForm.value = { itemId: null, cantidad: 0, motivo: null, observaciones: '' };
-    } else {
-      $q.notify({
-        color: 'negative',
-        message: 'Stock insuficiente para realizar la salida',
-        icon: 'error'
-      });
-    }
+const registrarSalida = async () => {
+  try {
+    await inventarioService.registrarSalida({
+      item_id: salidaForm.value.itemId,
+      cantidad: salidaForm.value.cantidad,
+      motivo: salidaForm.value.motivo,
+      observaciones: salidaForm.value.observaciones
+    });
+
+    await loadData();
+
+    $q.notify({
+      color: 'positive',
+      message: 'Salida registrada correctamente',
+      icon: 'check_circle'
+    });
+
+    showSalidaDialog.value = false;
+    salidaForm.value = { itemId: null, cantidad: 0, motivo: null, observaciones: '' };
+  } catch (error) {
+    console.error('Error registrando salida:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error al registrar salida'
+    });
   }
 };
 
 // Columnas de la tabla
 const inventarioColumns = [
-  { name: 'codigo', align: 'left', label: 'Código', field: 'codigo', sortable: true },
-  { name: 'nombre', align: 'left', label: 'Nombre', field: 'nombre', sortable: true },
-  { name: 'categoria', align: 'left', label: 'Categoría', field: 'categoria', sortable: true },
-  { name: 'ubicacion', align: 'center', label: 'Ubicación', field: 'ubicacion' },
-  { name: 'stockActual', align: 'center', label: 'Stock Actual', field: 'stockActual', sortable: true },
-  { name: 'stockMinimo', align: 'center', label: 'Stock Mínimo', field: 'stockMinimo' },
+  { name: 'codigo', align: 'left', label: 'Código', field: row => row.item?.codigo || 'N/A', sortable: true },
+  { name: 'nombre', align: 'left', label: 'Nombre', field: row => row.item?.nombre || 'N/A', sortable: true },
+  { name: 'categoria', align: 'left', label: 'Categoría', field: row => row.item?.categoria?.nombre || 'N/A', sortable: true },
+  { name: 'ubicacion', align: 'center', label: 'Ubicación', field: row => row.almacen?.nombre || 'General' },
+  { name: 'stockActual', align: 'center', label: 'Stock Actual', field: 'cantidad_actual', sortable: true },
+  { name: 'stockMinimo', align: 'center', label: 'Stock Mínimo', field: 'stock_minimo' },
   { name: 'stockStatus', align: 'center', label: 'Estado', field: 'stockStatus' },
-  { name: 'ultimoMovimiento', align: 'center', label: 'Último Movimiento', field: 'ultimoMovimiento', sortable: true },
+  { name: 'ultimoMovimiento', align: 'center', label: 'Último Movimiento', field: row => new Date(row.updated_at).toLocaleDateString(), sortable: true },
   { name: 'actions', align: 'center', label: 'Acciones', field: 'actions' }
 ];
 </script>

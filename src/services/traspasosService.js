@@ -1,36 +1,46 @@
-// import api from './api'; // Descomentar cuando se active el backend
+import api from './api';
 
 const traspasosService = {
-  async getTraspasos(_params = {}) {
-    return Promise.resolve({ data: [], total: 0 });
+  /**
+   * Obtener todos los traspasos (movimientos tipo 'traspaso')
+   */
+  async getTraspasos(params = {}) {
+    const response = await api.get('/movimientos-inventario', {
+      params: { ...params, tipo: 'traspaso' }
+    });
+    return response.data;
   },
 
-  async getTraspaso(_id) {
-    return Promise.resolve({});
+  /**
+   * Obtener un traspaso por ID
+   */
+  async getTraspaso(id) {
+    const response = await api.get(`/movimientos-inventario/${id}`);
+    return response.data;
   },
 
+  /**
+   * Crear nuevo traspaso
+   */
   async createTraspaso(traspasoData) {
-    return Promise.resolve(traspasoData);
+    const response = await api.post('/movimientos-inventario/traspaso', traspasoData);
+    return response.data;
   },
 
-  async aprobarTraspaso(_id) {
-    return Promise.resolve({ success: true });
+  /**
+   * Aprobar traspaso
+   */
+  async aprobarTraspaso(id) {
+    const response = await api.post(`/movimientos-inventario/${id}/aprobar`);
+    return response.data;
   },
 
-  async completarTraspaso(_id, confirmacionData) {
-    return Promise.resolve(confirmacionData);
-  },
-
-  async rechazarTraspaso() {
-    return Promise.resolve({ success: true });
-  },
-
-  async createTraspasoMasivo(traspasosData) {
-    return Promise.resolve(traspasosData);
-  },
-
-  async programarTraspaso(traspasoData) {
-    return Promise.resolve(traspasoData);
+  /**
+   * Cancelar traspaso
+   */
+  async cancelarTraspaso(id, motivo) {
+    const response = await api.post(`/movimientos-inventario/${id}/cancelar`, { motivo });
+    return response.data;
   },
 };
 

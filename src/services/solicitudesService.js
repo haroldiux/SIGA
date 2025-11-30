@@ -1,4 +1,4 @@
-// import api from './api'; // Descomentar cuando se active el backend
+import api from './api';
 
 /**
  * Servicio para gestión de solicitudes
@@ -7,93 +7,75 @@ const solicitudesService = {
   /**
    * Obtener todas las solicitudes
    */
-  async getSolicitudes(_params = {}) {
-    // const response = await api.get('/solicitudes', { params });
-    // return response.data;
-    
-    return Promise.resolve({ data: [], total: 0 });
+  async getSolicitudes(params = {}) {
+    const response = await api.get('/solicitudes', { params });
+    return response.data;
   },
 
   /**
    * Obtener una solicitud por ID
    */
-  async getSolicitud(_id) {
-    // const response = await api.get(`/solicitudes/${id}`);
-    // return response.data;
-    
-    return Promise.resolve({});
+  async getSolicitud(id) {
+    const response = await api.get(`/solicitudes/${id}`);
+    return response.data;
   },
 
   /**
    * Crear nueva solicitud
    */
   async createSolicitud(solicitudData) {
-    // const response = await api.post('/solicitudes', solicitudData);
-    // return response.data;
-    
-    return Promise.resolve(solicitudData);
+    const response = await api.post('/solicitudes', solicitudData);
+    return response.data;
   },
 
   /**
    * Actualizar solicitud
    */
-  async updateSolicitud(_id, solicitudData) {
-    // const response = await api.put(`/solicitudes/${id}`, solicitudData);
-    // return response.data;
-    
-    return Promise.resolve(solicitudData);
+  async updateSolicitud(id, solicitudData) {
+    const response = await api.put(`/solicitudes/${id}`, solicitudData);
+    return response.data;
   },
 
   /**
    * Aprobar solicitud
    */
-  async aprobarSolicitud(_id, _comentario = '') {
-    // const response = await api.post(`/solicitudes/${id}/aprobar`, { comentario });
-    // return response.data;
-    
-    return Promise.resolve({ success: true });
+  async aprobarSolicitud(id, etapa, data = {}) {
+    const response = await api.post(`/solicitudes/${id}/aprobar/${etapa}`, data);
+    return response.data;
   },
 
   /**
    * Rechazar solicitud
    */
-  async rechazarSolicitud(_id, _motivo) {
-    // const response = await api.post(`/solicitudes/${id}/rechazar`, { motivo });
-    // return response.data;
-    
-    return Promise.resolve({ success: true });
+  async rechazarSolicitud(id, etapa, motivo) {
+    const response = await api.post(`/solicitudes/${id}/rechazar/${etapa}`, { motivo });
+    return response.data;
   },
 
   /**
    * Agregar comentario a solicitud
    */
-  async agregarComentario(_id, comentario) {
-    // const response = await api.post(`/solicitudes/${id}/comentarios`, { comentario });
-    // return response.data;
-    
-    return Promise.resolve({ comentario });
+  async agregarComentario(id, comentario) {
+    const response = await api.post(`/solicitudes/${id}/comentarios`, { comentario });
+    return response.data;
   },
 
   /**
    * Subir documento a solicitud
    */
-  async subirDocumento(_id, _formData) {
-    // const response = await api.post(`/solicitudes/${id}/documentos`, formData, {
-    //   headers: { 'Content-Type': 'multipart/form-data' }
-    // });
-    // return response.data;
-    
-    return Promise.resolve({ success: true });
+  async subirDocumento(id, formData) {
+    const response = await api.post(`/solicitudes/${id}/documentos`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 
   /**
    * Obtener historial de cambios
    */
-  async getHistorial(_id) {
-    // const response = await api.get(`/solicitudes/${id}/historial`);
-    // return response.data;
-    
-    return Promise.resolve({ cambios: [] });
+  async getHistorial(id) {
+    const response = await api.get(`/solicitudes/${id}/historial`);
+    return response.data;
   },
 };
 
