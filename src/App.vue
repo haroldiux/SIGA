@@ -7,7 +7,14 @@
 </template>
 
 <script setup>
-//
+import { onMounted } from 'vue';
+import { useInventarioStore } from 'src/stores/store-inventario';
+
+const inventarioStore = useInventarioStore();
+
+onMounted(() => {
+  inventarioStore.fetchInventario();
+});
 </script>
 
 <style>

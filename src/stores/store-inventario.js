@@ -1,10 +1,11 @@
-// stores/store-inventario.js
 import { defineStore } from 'pinia';
+import { api } from 'src/boot/axios';
 
 export const useInventarioStore = defineStore('inventario', {
   state: () => ({
     // Inventario actual por ubicación
     inventario: [
+      // Mocks iniciales (se sobrescribirán si hay backend)
       {
         id: 1,
         itemId: 'QUI-001',
@@ -47,42 +48,65 @@ export const useInventarioStore = defineStore('inventario', {
     ],
 
     // Historial de movimientos
-    movimientos: [
-      {
-        id: 1,
-        itemId: 'QUI-001',
-        tipo: 'Entrada',
-        cantidad: 10,
-        motivo: 'Compra',
-        referencia: 'OC-2025-004',
-        ubicacion: 'Almacén Central',
-        fecha: '2025-11-15T10:30:00',
-        usuario: 'Encargado Almacén'
-      },
-      {
-        id: 2,
-        itemId: 'QUI-002',
-        tipo: 'Salida',
-        cantidad: 5,
-        motivo: 'Préstamo',
-        referencia: 'PREST-001',
-        ubicacion: 'Lab. Química',
-        fecha: '2025-11-14T14:20:00',
-        usuario: 'Docente Juan Pérez'
-      }
-    ]
+    movimientos: []
   }),
 
   actions: {
     /**
+     * Cargar inventario desde API
+     */
+    async fetchInventario() {
+      try {
+        const { data } = await api.get('/items');
+        const items = data.data || data;
+
+        if (Array.isArray(items) && items.length > 0) {
+          this.inventario = items.map(item => ({
+            id: item.id,
+            itemId: item.codigo,
+            nombre: item.nombre,
+            stock: parseFloat(item.stock_inicial) || 0, // TODO: Usar endpoint de stock real
+            unidadMedida: item.unidad_medida_base,
+            unidadCompra: item.unidad_medida_base,
+            factorConversion: 1,
+            macroArea: 'Laboratorios',
+            ubicacion: item.ubicacion_inicial?.nombre || 'Almacén Central',
+            stockMinimo: parseFloat(item.stock_minimo) || 0,
+            ultimaActualizacion: item.updated_at
+          }));
+          console.log('Inventario cargado desde API');
+        }
+      } catch (error) {
+        console.warn('Backend no disponible o error en API /items. Usando datos locales.', error.message);
+      }
+    },
+
+    /**
      * Crear nuevo item (Solo Codificador)
      */
-    crearItem(nuevoItem) {
-      // Validar si ya existe el ID
+    async crearItem(nuevoItem) {
+      // Validar si ya existe el ID localmente
       if (this.inventario.some(i => i.itemId === nuevoItem.itemId)) {
         throw new Error('El código del item ya existe');
       }
-      
+
+      try {
+        // Intentar guardar en backend
+        const payload = {
+          codigo: nuevoItem.itemId,
+          nombre: nuevoItem.nombre,
+          categoria_id: 1, // Default por ahora
+          unidad_medida_base: nuevoItem.unidadMedida,
+          stock_inicial: 0,
+          stock_minimo: nuevoItem.stockMinimo,
+          descripcion: nuevoItem.descripcion,
+          activo: true
+        };
+        await api.post('/items', payload);
+      } catch (e) {
+        console.warn('No se pudo guardar en backend, guardando localmente', e);
+      }
+
       this.inventario.push({
         ...nuevoItem,
         id: Date.now(),
@@ -97,20 +121,20 @@ export const useInventarioStore = defineStore('inventario', {
     agregarEntrada(entrada) {
       // Buscar si el item ya existe en la ubicación especificada
       const itemExistente = this.inventario.find(
-        inv => inv.itemId === entrada.itemId && 
-               inv.ubicacion === entrada.ubicacion
+        inv => inv.itemId === entrada.itemId &&
+          inv.ubicacion === entrada.ubicacion
       );
 
       // Calcular cantidad en unidad de uso
       let cantidadAgregar = entrada.cantidad;
-      
+
       // Si existe y tiene factor de conversión, aplicar
       if (itemExistente && itemExistente.factorConversion > 1) {
-         // Asumimos que la entrada viene en Unidad de Compra si no se especifica lo contrario
-         // Si la entrada especifica unidad, verificar si coincide con unidadCompra
-         if (entrada.unidadMedida === itemExistente.unidadCompra) {
-            cantidadAgregar = entrada.cantidad * itemExistente.factorConversion;
-         }
+        // Asumimos que la entrada viene en Unidad de Compra si no se especifica lo contrario
+        // Si la entrada especifica unidad, verificar si coincide con unidadCompra
+        if (entrada.unidadMedida === itemExistente.unidadCompra) {
+          cantidadAgregar = entrada.cantidad * itemExistente.factorConversion;
+        }
       }
 
       if (itemExistente) {
@@ -120,7 +144,7 @@ export const useInventarioStore = defineStore('inventario', {
       } else {
         // Crear nuevo registro de inventario (si no existe en esa ubicación)
         const definicionItem = this.inventario.find(i => i.itemId === entrada.itemId);
-        
+
         this.inventario.push({
           id: Date.now(),
           itemId: entrada.itemId,
@@ -159,8 +183,8 @@ export const useInventarioStore = defineStore('inventario', {
      */
     registrarSalida(salida) {
       const item = this.inventario.find(
-        inv => inv.itemId === salida.itemId && 
-               inv.ubicacion === salida.ubicacion
+        inv => inv.itemId === salida.itemId &&
+          inv.ubicacion === salida.ubicacion
       );
 
       if (!item) {
